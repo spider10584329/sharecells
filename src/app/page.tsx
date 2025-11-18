@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from '@/components/ui/ToastProvider';
+import Spinner from '@/components/ui/Spinner';
 
 function HomeContent() {
   const router = useRouter();
@@ -453,7 +454,7 @@ export default function Home() {
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#b1bcd4' }}>
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+          <Spinner size={48} />
         </div>
       </div>
     }>

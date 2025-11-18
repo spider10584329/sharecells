@@ -2,6 +2,20 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import AgentWorkSheetsHeader from '@/components/agent/AgentWorkSheetsHeader';
+import AgentSheetGrid from '@/components/agent/AgentSheetGrid';
+import AgentSheetTable from '@/components/agent/AgentSheetTable';
+import SheetViewer from '@/components/agent/SheetViewer';
+import { useToast } from '@/components/ui/ToastProvider';
+
+interface Sheet {
+  id: number;
+  manager_id: number;
+  sheet_number: number | null;
+  sheet_name: string;
+  created_at: string | null;
+  manager_name?: string;
+}
 
 // Helper function to decode JWT token
 function decodeToken(token: string) {
@@ -25,6 +39,13 @@ export default function AgentPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [agentId, setAgentId] = useState<number | null>(null);
+  const [sheets, setSheets] = useState<Sheet[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
+  const [isLoadingView, setIsLoadingView] = useState(true);
+  const [viewingSheetId, setViewingSheetId] = useState<number | null>(null);
+  const [viewingSheetName, setViewingSheetName] = useState<string>('');
+  const { showToast } = useToast();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -39,16 +60,118 @@ export default function AgentPage() {
     if (userData) {
       setUser(JSON.parse(userData));
     }
+
+    // Fetch view preference
+    fetchViewPreference();
+    
+    // Fetch shared sheets
+    fetchSharedSheets();
   }, [router]);
+
+  const fetchViewPreference = async () => {
+    try {
+      const response = await fetch('/api/agent/view-preference');
+      if (response.ok) {
+        const data = await response.json();
+        setViewMode(data.view_type === 1 ? 'table' : 'card');
+      }
+    } catch (error) {
+      console.error('Error fetching view preference:', error);
+    } finally {
+      setIsLoadingView(false);
+    }
+  };
+
+  const fetchSharedSheets = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/agent/shared-sheets');
+      
+      if (response.ok) {
+        const data = await response.json();
+        setSheets(data.sheets || []);
+      } else {
+        showToast('error', 'Error', 'Failed to load worksheets');
+      }
+    } catch (error) {
+      console.error('Error fetching shared sheets:', error);
+      showToast('error', 'Error', 'Error loading worksheets');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleViewModeChange = async (newViewMode: 'card' | 'table') => {
+    try {
+      const view_type = newViewMode === 'table' ? 1 : 0;
+      const response = await fetch('/api/agent/view-preference', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ view_type })
+      });
+
+      if (response.ok) {
+        setViewMode(newViewMode);
+        showToast('success', 'Success', `View mode changed to ${newViewMode}`);
+      } else {
+        showToast('error', 'Error', 'Failed to save view preference');
+      }
+    } catch (error) {
+      console.error('Error updating view preference:', error);
+      showToast('error', 'Error', 'Error updating view preference');
+    }
+  };
+
+  const handleViewSheet = (sheetId: number, sheetName: string) => {
+    setViewingSheetId(sheetId);
+    setViewingSheetName(sheetName);
+  };
+
+  const closeSheetViewer = () => {
+    setViewingSheetId(null);
+    setViewingSheetName('');
+    // Refresh sheets when closing viewer
+    fetchSharedSheets();
+  };
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h2>
+      <AgentWorkSheetsHeader
+        onViewModeChange={handleViewModeChange}
+        currentView={viewMode}
+      />
       
-      {/* Welcome Section with Admin ID */}
+      {/* Main Content Area */}
       <div className="bg-white rounded-lg shadow p-6 h-[calc(100vh-190px)]">
-        
+        {viewingSheetId !== null ? (
+          <SheetViewer
+            sheetId={viewingSheetId}
+            sheetName={viewingSheetName}
+            onClose={closeSheetViewer}
+          />
+        ) : (
+          <>
+            {isLoadingView ? (
+              <div className="flex justify-center items-center h-full">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              </div>
+            ) : viewMode === 'card' ? (
+              <AgentSheetGrid
+                sheets={sheets}
+                loading={loading}
+                onView={handleViewSheet}
+              />
+            ) : (
+              <AgentSheetTable
+                sheets={sheets}
+                loading={loading}
+                onView={handleViewSheet}
+              />
+            )}
+          </>
+        )}
       </div>
     </div>
   );
 }
+

@@ -1,54 +1,168 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-
-// Helper function to decode JWT token
-function decodeToken(token: string) {
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    return JSON.parse(jsonPayload);
-  } catch (error) {
-    console.error('Error decoding token:', error);
-    return null;
-  }
-}
+import { useState, useEffect } from 'react';
+import WorkSheetsHeader from '@/components/admin/WorkSheetsHeader';
+import SheetGrid from '@/components/admin/SheetGrid';
+import SheetTable from '@/components/admin/SheetTable';
+import SheetSettingsPanel from '@/components/admin/SheetSettingsPanel';
+import SheetViewer from '@/components/admin/SheetViewer';
+import AddSheetDialog from '@/components/ui/AddSheetDialog';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import { useSheetManagement } from '@/hooks/useSheetManagement';
+import { useToast } from '@/components/ui/ToastProvider';
 
 export default function AdminPage() {
-  const router = useRouter();
-  const [user, setUser] = useState<any>(null);
-  const [adminId, setAdminId] = useState<number | null>(null);
+  const [isAddSheetDialogOpen, setIsAddSheetDialogOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
+  const [isLoadingView, setIsLoadingView] = useState(true);
+  const [viewingSheetId, setViewingSheetId] = useState<number | null>(null);
+  const [viewingSheetName, setViewingSheetName] = useState<string>('');
+  const { showToast } = useToast();
+  
+  const {
+    sheets,
+    loading,
+    deleteSheetId,
+    settingsSheetId,
+    handleAddSheet,
+    handleDeleteSheet,
+    confirmDeleteSheet,
+    handleSheetSettings,
+    closeSettingsPanel,
+    closeDeleteDialog,
+    fetchSheets,
+  } = useSheetManagement();
 
+  // Fetch view preference on component mount
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
+    const fetchViewPreference = async () => {
+      try {
+        const response = await fetch('/api/admin/view-preference');
+        if (response.ok) {
+          const data = await response.json();
+          setViewMode(data.view_type === 1 ? 'table' : 'card');
+        }
+      } catch (error) {
+        console.error('Error fetching view preference:', error);
+      } finally {
+        setIsLoadingView(false);
+      }
+    };
 
-    // Decode token to get administrator ID
-    const decodedToken = decodeToken(token || '');
-    if (decodedToken) {
-      setAdminId(decodedToken.userId);
-    }
+    fetchViewPreference();
+  }, []);
 
-    if (userData) {
-      setUser(JSON.parse(userData));
+  const handleViewModeChange = async (newViewMode: 'card' | 'table') => {
+    try {
+      const view_type = newViewMode === 'table' ? 1 : 0;
+      const response = await fetch('/api/admin/view-preference', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ view_type })
+      });
+
+      if (response.ok) {
+        setViewMode(newViewMode);
+        showToast('success', 'Success', `View mode changed to ${newViewMode}`);
+      } else {
+        showToast('error', 'Error', 'Failed to save view preference');
+      }
+    } catch (error) {
+      console.error('Error updating view preference:', error);
+      showToast('error', 'Error', 'Error updating view preference');
     }
-  }, [router]);
+  };
+
+  const handleViewSheet = async (sheetId: number, sheetName: string) => {
+    // Pre-validate that sheet has fields before opening viewer
+    try {
+      const response = await fetch(`/api/admin/sheet-data/${sheetId}`);
+      if (response.status === 400) {
+        const errorData = await response.json();
+        showToast('error', 'Warning', errorData.error || 'You must design the sheet structure first.');
+        return; // Don't open viewer
+      }
+      // Only open viewer if validation passed
+      setViewingSheetId(sheetId);
+      setViewingSheetName(sheetName);
+    } catch (error) {
+      console.error('Error validating sheet:', error);
+      showToast('error', 'Error', 'Failed to load sheet data');
+    }
+  };
+
+  const closeSheetViewer = () => {
+    setViewingSheetId(null);
+    setViewingSheetName('');
+  };
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h2>
+      <WorkSheetsHeader
+        onAddSheet={() => setIsAddSheetDialogOpen(true)}
+        onViewModeChange={handleViewModeChange}
+        currentView={viewMode}
+      />
       
-      {/* Welcome Section with Admin ID */}
+      {/* Main Content Area */}
       <div className="bg-white rounded-lg shadow p-6 h-[calc(100vh-190px)]">
-        
+        {viewingSheetId !== null ? (
+          <SheetViewer
+            sheetId={viewingSheetId}
+            sheetName={viewingSheetName}
+            onClose={closeSheetViewer}
+          />
+        ) : settingsSheetId !== null ? (
+          <SheetSettingsPanel
+            sheetId={settingsSheetId}
+            sheetName={sheets.find(s => s.id === settingsSheetId)?.sheet_name || ''}
+            onClose={closeSettingsPanel}
+            onSheetUpdated={fetchSheets}
+          />
+        ) : (
+          <>
+            {isLoadingView ? (
+              <div className="flex justify-center items-center h-full">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              </div>
+            ) : viewMode === 'card' ? (
+              <SheetGrid
+                sheets={sheets}
+                loading={loading}
+                onSettings={handleSheetSettings}
+                onDelete={handleDeleteSheet}
+                onView={handleViewSheet}
+              />
+            ) : (
+              <SheetTable
+                sheets={sheets}
+                loading={loading}
+                onSettings={handleSheetSettings}
+                onDelete={handleDeleteSheet}
+                onView={handleViewSheet}
+              />
+            )}
+          </>
+        )}
       </div>
+
+      {/* Add Sheet Dialog */}
+      <AddSheetDialog
+        isOpen={isAddSheetDialogOpen}
+        onClose={() => setIsAddSheetDialogOpen(false)}
+        onConfirm={handleAddSheet}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteSheetId !== null}
+        onClose={closeDeleteDialog}
+        onConfirm={confirmDeleteSheet}
+        title="Delete Sheet"
+        message="Are you sure you want to delete this sheet? This action cannot be undone."
+        type="danger"
+      />
     </div>
   );
 }
+

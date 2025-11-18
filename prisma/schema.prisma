@@ -7,7 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Existing tables from database
 model User {
   id                Int     @id @default(autoincrement())
   manager_id        Int?
@@ -25,28 +24,25 @@ model alembic_version {
 }
 
 model cells {
-  id           Int     @id @default(autoincrement())
-  manager_id   Int
-  sheet_id     Int
-  sheet_type   Int?
-  cell_title   String? @db.VarChar(255)
-  cell_content String? @db.VarChar(255)
-  created_at   String? @db.VarChar(255)
+  id         Int     @id @default(autoincrement())
+  manager_id Int
+  user_id    Int?
+  sheet_id   Int
+  field_id   Int
+  value      String? @db.VarChar(255)
+  uuid       String? @db.VarChar(255)
+  created_at String? @db.VarChar(255)
 
-  @@index([sheet_id], map: "cells_ibfk_1")
   @@index([manager_id], map: "manager_id")
+  @@index([field_id], map: "cell_id")
+  @@index([sheet_id], map: "sheet_id")
+  @@index([user_id], map: "workcells_ibfk_4")
 }
 
 model departments {
   id         Int    @id @default(autoincrement())
   manager_id Int
   name       String @unique(map: "name") @db.VarChar(255)
-}
-
-model managers {
-  id       Int    @id @default(autoincrement())
-  username String @unique(map: "username") @db.VarChar(255)
-  password String @db.VarChar(255)
 }
 
 model sharesheets {
@@ -71,18 +67,21 @@ model sheets {
   @@index([manager_id], map: "manager_id")
 }
 
-model workcells {
-  id         Int     @id @default(autoincrement())
-  manager_id Int
-  user_id    Int?
-  sheet_id   Int
-  cell_id    Int
-  value      String? @db.VarChar(255)
-  uuid       String? @db.VarChar(255)
-  created_at String? @db.VarChar(255)
+model fields {
+  id           Int     @id @default(autoincrement())
+  manager_id   Int
+  sheet_id     Int
+  sheet_type   Int?
+  cell_title   String? @db.VarChar(255)
+  cell_content String? @default("150") @db.VarChar(255)
+  created_at   String? @db.VarChar(255)
 
-  @@index([cell_id], map: "cell_id")
+  @@index([sheet_id], map: "cells_ibfk_1")
   @@index([manager_id], map: "manager_id")
-  @@index([sheet_id], map: "sheet_id")
-  @@index([user_id], map: "workcells_ibfk_4")
+}
+
+model sheet_view {
+  id         Int    @id @default(autoincrement())
+  manager_id String @db.VarChar(255)
+  view_type  Int?   @default(0) @db.MediumInt
 }

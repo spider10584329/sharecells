@@ -7,11 +7,12 @@ import { useToast } from '@/components/ui/ToastProvider';
 // Navigation menu items configuration
 const menuItems = [
   {
-    id: 'dashboard',
-    label: 'Dashboard',
+    id: 'worksheet',
+    label: 'WorkSheets',
     path: '/admin',
-    icon: '/svg/dashboard.svg',
+    icon: '/svg/worksheet.svg',
   },
+  
   {
     id: 'users',
     label: 'Users',

@@ -7,8 +7,8 @@ import { useToast } from '@/components/ui/ToastProvider';
 // Navigation menu items configuration
 const menuItems = [
   {
-    id: 'dashboard',
-    label: 'Dashboard',
+    id: 'worksheet',
+    label: 'worksheets',
     path: '/agent',
     icon: '/svg/dashboard.svg',
   },
@@ -193,7 +193,7 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
                         className="w-9 h-9 opacity-70"
                     />
                   </div>
-                  <span className="text-sm font-medium text-gray-800">Agent</span>
+                  <span className="text-sm font-medium text-gray-800">{user?.username || 'Agent'}</span>
                   <svg className={`w-4 h-4 text-gray-600 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
