@@ -26,6 +26,7 @@ export async function GET(
 
     const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
     const userId = decoded.userId;
+    const userRole = decoded.role;
     const resolvedParams = await params;
     const sheetId = parseInt(resolvedParams.id);
 
@@ -53,24 +54,38 @@ export async function GET(
       );
     }
 
-    // Agent sees ALL users' records, sorted by user and creation order
-    const cells: any[] = await prisma.$queryRaw`
-      SELECT c.*, u.username, c.created_at
-      FROM cells c
-      LEFT JOIN users u ON c.user_id = u.id
-      WHERE c.sheet_id = ${sheetId}
-      ORDER BY COALESCE(c.user_id, 0) ASC, c.id ASC
-    `;
+    // Agent sees only their own records, admin sees all records
+    let cells: any[];
+    if (userRole === 'agent') {
+      // Agent sees only their own data
+      cells = await prisma.$queryRaw`
+        SELECT c.*, u.username, c.created_at
+        FROM cells c
+        LEFT JOIN users u ON c.user_id = u.id
+        WHERE c.sheet_id = ${sheetId} AND c.user_id = ${userId}
+        ORDER BY c.id ASC
+      `;
+    } else {
+      // Admin sees all users' records, sorted by user and creation order
+      cells = await prisma.$queryRaw`
+        SELECT c.*, u.username, c.created_at
+        FROM cells c
+        LEFT JOIN users u ON c.user_id = u.id
+        WHERE c.sheet_id = ${sheetId}
+        ORDER BY COALESCE(c.user_id, 0) ASC, c.id ASC
+      `;
+    }
 
-    // Organize cells by rows (uuid + user_id combination) and track minimum cell ID for sorting
+    // Organize cells by rows (uuid for agent's own data)
     const rowsMap = new Map();
     cells.forEach(cell => {
-      const rowKey = `${cell.uuid}-${cell.user_id || 'admin'}`;
+      // Agent API only returns their own data, so user_id is always present
+      const rowKey = cell.uuid;
       if (!rowsMap.has(rowKey)) {
         rowsMap.set(rowKey, {
           uuid: cell.uuid,
           user_id: cell.user_id,
-          username: cell.username || 'Admin',
+          username: cell.username,
           created_at: cell.created_at,
           minCellId: cell.id, // Track minimum cell ID for this row (never changes, reliable for sorting)
           cells: {}
@@ -88,15 +103,9 @@ export async function GET(
       };
     });
 
-    // Convert to array and sort by user_id, then by minCellId (earliest cell ID = earliest created)
+    // Convert to array and sort by minCellId (earliest created first)
+    // Agent only sees their own data, so no need to sort by user_id
     const rows = Array.from(rowsMap.values()).sort((a, b) => {
-      // First sort by user_id (nulls/admin first)
-      const userIdA = a.user_id || 0;
-      const userIdB = b.user_id || 0;
-      if (userIdA !== userIdB) {
-        return userIdA - userIdB;
-      }
-      // Then sort by minimum cell ID (earliest created first)
       return a.minCellId - b.minCellId;
     });
 

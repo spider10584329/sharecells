@@ -74,7 +74,7 @@ export default function SheetViewer({ sheetId, sheetName, onClose }: SheetViewer
     } finally {
       setLoading(false);
     }
-  }, [sheetId, showToast, onClose]);
+  }, [sheetId]); // Removed showToast and onClose - they are stable functions
 
   useEffect(() => {
     fetchSheetData();
@@ -246,6 +246,7 @@ export default function SheetViewer({ sheetId, sheetName, onClose }: SheetViewer
     const newUuid = crypto.randomUUID();
     const newRow: Row = {
       uuid: newUuid,
+      user_id: null, // Admin rows have user_id = null
       cells: {}
     };
     setRows(prev => [...prev, newRow]);

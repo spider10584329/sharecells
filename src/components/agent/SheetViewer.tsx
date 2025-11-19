@@ -33,6 +33,7 @@ interface SheetViewerProps {
 export default function SheetViewer({ sheetId, sheetName, onClose }: SheetViewerProps) {
   const [fields, setFields] = useState<Field[]>([]);
   const [rows, setRows] = useState<Row[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null); // Store current user's ID
   const [loading, setLoading] = useState(true);
   const [editingCell, setEditingCell] = useState<{ rowUuid: string; rowUserId: number | null | undefined; fieldId: number } | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -49,6 +50,11 @@ export default function SheetViewer({ sheetId, sheetName, onClose }: SheetViewer
         const data = await response.json();
         setFields(data.fields);
         setRows(data.rows);
+        
+        // Store current user's ID from the first row (if any)
+        if (data.rows.length > 0 && data.rows[0].user_id) {
+          setCurrentUserId(data.rows[0].user_id);
+        }
         
         // Load column widths from cell_content field
         const widths: { [key: number]: number } = {};
@@ -68,7 +74,7 @@ export default function SheetViewer({ sheetId, sheetName, onClose }: SheetViewer
     } finally {
       setLoading(false);
     }
-  }, [sheetId, showToast]);
+  }, [sheetId]); // Removed showToast - it's a stable function
 
   useEffect(() => {
     fetchSheetData();
@@ -235,6 +241,7 @@ export default function SheetViewer({ sheetId, sheetName, onClose }: SheetViewer
     const newUuid = crypto.randomUUID();
     const newRow: Row = {
       uuid: newUuid,
+      user_id: currentUserId, // Use the current agent's user ID
       cells: {}
     };
     setRows(prev => [...prev, newRow]);
@@ -261,12 +268,11 @@ export default function SheetViewer({ sheetId, sheetName, onClose }: SheetViewer
   const calculateTableWidth = () => {
     const rowNumberWidth = 60;
     const actionsWidth = 80;
-    const userInfoWidth = 120; // User column
-    const timestampWidth = 180; // Timestamp column
+    // Agents don't see User and Created At columns
     const columnsWidth = fields.reduce((total, field) => {
       return total + (columnWidths[field.id] || 150);
     }, 0);
-    return rowNumberWidth + columnsWidth + actionsWidth + userInfoWidth + timestampWidth;
+    return rowNumberWidth + columnsWidth + actionsWidth;
   };
 
   const handleResizeStart = (e: React.MouseEvent, fieldId: number) => {
@@ -386,14 +392,8 @@ export default function SheetViewer({ sheetId, sheetName, onClose }: SheetViewer
                     />
                   </th>
                 ))}
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase border-r border-b border-gray-300" style={{ width: 80 }}>
+                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase border-b border-gray-300" style={{ width: 80 }}>
                   Actions
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase border-r border-b border-gray-300" style={{ width: 120 }}>
-                  User
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase border-b border-gray-300" style={{ width: 180 }}>
-                  Created At
                 </th>
               </tr>
             </thead>
@@ -401,7 +401,7 @@ export default function SheetViewer({ sheetId, sheetName, onClose }: SheetViewer
               {rows.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={fields.length + 4}
+                    colSpan={fields.length + 2}
                     className="px-4 py-12 text-center text-gray-500"
                   >
                     No data yet. Click "Add Row" to start adding data.
@@ -460,7 +460,7 @@ export default function SheetViewer({ sheetId, sheetName, onClose }: SheetViewer
                         </td>
                       );
                     })}
-                    <td className="text-center border-r border-b border-gray-200 p-0" style={{ width: 80 }}>
+                    <td className="text-center border-b border-gray-200 p-0" style={{ width: 80 }}>
                       <div className="px-2 py-2 h-full flex items-center justify-center">
                         <button
                           onClick={() => handleDeleteRow(row.uuid)}
@@ -472,12 +472,6 @@ export default function SheetViewer({ sheetId, sheetName, onClose }: SheetViewer
                           </svg>
                         </button>
                       </div>
-                    </td>
-                    <td className="px-4 py-2 text-sm text-gray-700 border-r border-b border-gray-200" style={{ width: 120 }}>
-                      {row.username || 'Admin'}
-                    </td>
-                    <td className="px-4 py-2 text-sm text-gray-600 border-b border-gray-200" style={{ width: 180, whiteSpace: 'nowrap' }}>
-                      {row.created_at ? new Date(row.created_at).toLocaleString() : '-'}
                     </td>
                   </tr>
                 ))
