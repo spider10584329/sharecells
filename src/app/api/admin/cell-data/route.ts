@@ -93,6 +93,7 @@ export async function DELETE(request: Request) {
     }
 
     const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
+    const managerId = decoded.userId;
     const userRole = decoded.role || 'agent';
 
     if (userRole !== 'admin') {
@@ -102,6 +103,7 @@ export async function DELETE(request: Request) {
     const { searchParams } = new URL(request.url);
     const uuid = searchParams.get('uuid');
     const sheetId = searchParams.get('sheet_id');
+    const userId = searchParams.get('user_id'); // Get user_id to identify which row to delete
 
     if (!uuid || !sheetId) {
       return NextResponse.json(
@@ -110,13 +112,40 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // Admin can only delete their own rows (user_id IS NULL)
-    await prisma.$executeRaw`
-      DELETE FROM cells 
-      WHERE uuid = ${uuid} 
-      AND sheet_id = ${parseInt(sheetId)}
-      AND user_id IS NULL
+    const sheetIdNum = parseInt(sheetId);
+
+    // First, verify that the admin owns this sheet
+    const sheet: any[] = await prisma.$queryRaw`
+      SELECT * FROM sheets WHERE id = ${sheetIdNum} AND manager_id = ${managerId}
     `;
+
+    if (sheet.length === 0) {
+      return NextResponse.json(
+        { error: 'Sheet not found or access denied' },
+        { status: 403 }
+      );
+    }
+
+    // Delete the specific row by uuid AND user_id combination
+    // Admin can delete any row in their sheet (both admin rows and user rows)
+    if (userId === 'null' || userId === null || userId === undefined) {
+      // Delete admin row (user_id IS NULL)
+      await prisma.$executeRaw`
+        DELETE FROM cells 
+        WHERE uuid = ${uuid} 
+        AND sheet_id = ${sheetIdNum}
+        AND user_id IS NULL
+      `;
+    } else {
+      // Delete user row (user_id = specific value)
+      const userIdNum = parseInt(userId);
+      await prisma.$executeRaw`
+        DELETE FROM cells 
+        WHERE uuid = ${uuid} 
+        AND sheet_id = ${sheetIdNum}
+        AND user_id = ${userIdNum}
+      `;
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

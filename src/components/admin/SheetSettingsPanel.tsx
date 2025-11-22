@@ -28,11 +28,11 @@ export default function SheetSettingsPanel({ sheetId, sheetName, onClose, onShee
   const [editingFieldId, setEditingFieldId] = useState<number | null>(null);
   const [editingField, setEditingField] = useState({
     fieldName: '',
-    dataType: 'static'
+    dataType: 'dynamic'
   });
   const [newField, setNewField] = useState({
     fieldName: '',
-    dataType: 'static'
+    dataType: 'dynamic'
   });
   const [sheetInfo, setSheetInfo] = useState({
     sheetNumber: '',
@@ -280,7 +280,7 @@ export default function SheetSettingsPanel({ sheetId, sheetName, onClose, onShee
       console.log('Response data:', data);
 
       if (response.ok) {
-        setNewField({ fieldName: '', dataType: 'static' });
+        setNewField({ fieldName: '', dataType: 'dynamic' });
         fetchFields();
       } else {
         console.error('Failed to add field:', data);
@@ -318,7 +318,7 @@ export default function SheetSettingsPanel({ sheetId, sheetName, onClose, onShee
     setEditingFieldId(null);
     setEditingField({
       fieldName: '',
-      dataType: 'static'
+      dataType: 'dynamic'
     });
   };
 
@@ -340,7 +340,7 @@ export default function SheetSettingsPanel({ sheetId, sheetName, onClose, onShee
         setEditingFieldId(null);
         setEditingField({
           fieldName: '',
-          dataType: 'static'
+          dataType: 'dynamic'
         });
         fetchFields();
       } else {
@@ -356,11 +356,7 @@ export default function SheetSettingsPanel({ sheetId, sheetName, onClose, onShee
   const getDataTypeValue = (type: string): number => {
     const types: { [key: string]: number } = {
       static: 1,
-      dynamic: 2,
-      text: 3,
-      number: 4,
-      date: 5,
-      dropdown: 6
+      dynamic: 2,     
     };
     return types[type] || 1;
   };

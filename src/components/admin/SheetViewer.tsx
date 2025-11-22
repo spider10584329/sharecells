@@ -203,6 +203,38 @@ export default function SheetViewer({ sheetId, sheetName, onClose }: SheetViewer
 
     const { rowUuid, rowUserId, fieldId } = editingCell;
     
+    // Get the original value to compare
+    const originalRow = rows.find(r => r.uuid === rowUuid && r.user_id === rowUserId);
+    const originalValue = originalRow?.cells[fieldId]?.value || '';
+    
+    // Update local state first (for immediate UI feedback)
+    setRows(prevRows => prevRows.map(row => {
+      if (row.uuid === rowUuid && row.user_id === rowUserId) {
+        return {
+          ...row,
+          cells: {
+            ...row.cells,
+            [fieldId]: {
+              id: row.cells[fieldId]?.id || 0,
+              value: editValue
+            }
+          }
+        };
+      }
+      return row;
+    }));
+    
+    // Only save to database if the value has actually changed
+    if (editValue === originalValue) {
+      return; // No change, skip database save
+    }
+    
+    // Don't save empty values for new cells (prevents creating ghost rows)
+    // Only save if: 1) the value is not empty, OR 2) we're clearing an existing value
+    if (editValue.trim() === '' && originalValue === '') {
+      return; // Don't create empty cells in database
+    }
+    
     try {
       const response = await fetch('/api/admin/cell-data', {
         method: 'POST',
@@ -215,24 +247,7 @@ export default function SheetViewer({ sheetId, sheetName, onClose }: SheetViewer
         })
       });
 
-      if (response.ok) {
-        // Update local state - CRITICAL: Compare both uuid AND user_id to prevent overwriting other users' rows
-        setRows(prevRows => prevRows.map(row => {
-          if (row.uuid === rowUuid && row.user_id === rowUserId) {
-            return {
-              ...row,
-              cells: {
-                ...row.cells,
-                [fieldId]: {
-                  id: row.cells[fieldId]?.id || 0,
-                  value: editValue
-                }
-              }
-            };
-          }
-          return row;
-        }));
-      } else {
+      if (!response.ok) {
         showToast('error', 'Error', 'Failed to update cell');
       }
     } catch (error) {
@@ -252,14 +267,16 @@ export default function SheetViewer({ sheetId, sheetName, onClose }: SheetViewer
     setRows(prev => [...prev, newRow]);
   };
 
-  const handleDeleteRow = async (rowUuid: string) => {
+  const handleDeleteRow = async (rowUuid: string, rowUserId: number | null | undefined) => {
     try {
-      const response = await fetch(`/api/admin/cell-data?uuid=${rowUuid}&sheet_id=${sheetId}`, {
+      // Pass user_id to identify which specific row to delete (admin rows have user_id = null)
+      const userIdParam = rowUserId === null || rowUserId === undefined ? 'null' : rowUserId.toString();
+      const response = await fetch(`/api/admin/cell-data?uuid=${rowUuid}&sheet_id=${sheetId}&user_id=${userIdParam}`, {
         method: 'DELETE'
       });
 
       if (response.ok) {
-        setRows(prev => prev.filter(row => row.uuid !== rowUuid));
+        setRows(prev => prev.filter(row => !(row.uuid === rowUuid && row.user_id === rowUserId)));
         showToast('success', 'Success', 'Row deleted successfully');
       } else {
         showToast('error', 'Error', 'Failed to delete row');
@@ -493,7 +510,7 @@ export default function SheetViewer({ sheetId, sheetName, onClose }: SheetViewer
                       <td className="text-center border-r border-b border-gray-200 p-0" style={{ width: 80 }}>
                         <div className="px-2 py-2 h-full flex items-center justify-center">
                           <button
-                            onClick={() => handleDeleteRow(row.uuid)}
+                            onClick={() => handleDeleteRow(row.uuid, row.user_id)}
                             className="text-red-500 hover:text-red-700 transition-colors p-1"
                             aria-label="Delete row"
                           >

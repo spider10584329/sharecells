@@ -12,13 +12,20 @@ const menuItems = [
     path: '/admin',
     icon: '/svg/worksheet.svg',
   },
-  
+  {
+    id: 'apikey',
+    label: 'API Key',
+    path: '/admin/apikey',
+    icon: '/svg/key.svg',
+  },
   {
     id: 'users',
     label: 'Users',
     path: '/admin/users',
     icon: '/svg/users.svg',
   },
+  
+  
   // Add more menu items here in the future
   // {
   //   id: 'settings',

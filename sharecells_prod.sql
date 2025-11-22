@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 15, 2025 at 01:05 PM
+-- Generation Time: Nov 22, 2025 at 11:01 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -37,6 +37,19 @@ CREATE TABLE `alembic_version` (
 
 INSERT INTO `alembic_version` (`version_num`) VALUES
 ('53b100a54f37');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `apikey`
+--
+
+CREATE TABLE `apikey` (
+  `id` int(11) NOT NULL,
+  `customer_id` int(11) NOT NULL,
+  `api_key` varchar(255) NOT NULL,
+  `created_at` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -79,7 +92,7 @@ CREATE TABLE `fields` (
   `sheet_id` int(11) NOT NULL,
   `sheet_type` int(11) DEFAULT NULL,
   `cell_title` varchar(255) DEFAULT NULL,
-  `cell_content` varchar(255) DEFAULT NULL,
+  `cell_content` varchar(255) DEFAULT '150',
   `created_at` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
@@ -140,13 +153,6 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`id`, `manager_id`, `username`, `password`, `isActive`, `passwordRequest`, `isPasswordRequest`) VALUES
-(16, 25, 'aaa', '$pbkdf2-sha256$29000$4f2VgNy1Yx4vKfhy.ntXkyJ5sA/DYO8o6OgJmAVgYd8$J4G6ZrZiPqwZDvbRBhT6.Q4b7PowNkFfURk1Q.g0AWI', 1, NULL, 0);
-
---
 -- Indexes for dumped tables
 --
 
@@ -155,6 +161,12 @@ INSERT INTO `users` (`id`, `manager_id`, `username`, `password`, `isActive`, `pa
 --
 ALTER TABLE `alembic_version`
   ADD PRIMARY KEY (`version_num`) USING BTREE;
+
+--
+-- Indexes for table `apikey`
+--
+ALTER TABLE `apikey`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `cells`
@@ -216,10 +228,16 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT for table `apikey`
+--
+ALTER TABLE `apikey`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `cells`
 --
 ALTER TABLE `cells`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=467;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1101;
 
 --
 -- AUTO_INCREMENT for table `departments`
@@ -231,31 +249,31 @@ ALTER TABLE `departments`
 -- AUTO_INCREMENT for table `fields`
 --
 ALTER TABLE `fields`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=106;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=174;
 
 --
 -- AUTO_INCREMENT for table `sharesheets`
 --
 ALTER TABLE `sharesheets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=71;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=110;
 
 --
 -- AUTO_INCREMENT for table `sheets`
 --
 ALTER TABLE `sheets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
 
 --
 -- AUTO_INCREMENT for table `sheet_view`
 --
 ALTER TABLE `sheet_view`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

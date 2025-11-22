@@ -206,7 +206,7 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
                       <button
                         onClick={() => {
                           setDropdownOpen(false);
-                          // Handle user profile navigation
+                          router.push('/agent/profile');
                         }}
                         className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
                       >

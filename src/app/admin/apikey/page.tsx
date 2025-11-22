@@ -1,0 +1,285 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useToast } from '@/components/ui/ToastProvider';
+
+export default function APIKeyPage() {
+  const { showToast } = useToast();
+  const [apiKey, setApiKey] = useState('');
+  const [customerId, setCustomerId] = useState('');
+  const [loading, setLoading] = useState(true);
+  
+  // Get domain from environment variable or default to localhost:3000
+  const domain = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const apiUrl = customerId && apiKey 
+    ? `${domain}/api/sharecells?customer_id=${customerId}&apikey=${apiKey}`
+    : `${domain}/api/sharecells?customer_id=<ID>&apikey=<KEY>`;
+  
+  const [generating, setGenerating] = useState(false);
+
+  // Fetch API key and customer ID on component mount
+  useEffect(() => {
+    fetchApiKey();
+  }, []);
+
+  const fetchApiKey = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/admin/apikey');
+      const data = await response.json();
+      
+      if (response.ok) {
+        setApiKey(data.apiKey || '');
+        setCustomerId(data.customerId?.toString() || '');
+      } else {
+        showToast('error', 'Error', data.error || 'Failed to fetch API key');
+      }
+    } catch (error) {
+      console.error('Error fetching API key:', error);
+      showToast('error', 'Error', 'Failed to fetch API key');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const generateKey = async () => {
+    setGenerating(true);
+    try {
+      const response = await fetch('/api/admin/apikey', {
+        method: 'POST',
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setApiKey(data.apiKey);
+        showToast('success', 'Success', 'New API Key generated successfully');
+      } else {
+        showToast('error', 'Error', data.error || 'Failed to generate API key');
+      }
+    } catch (error) {
+      console.error('Error generating API key:', error);
+      showToast('error', 'Error', 'Failed to generate API key');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    showToast('success', 'Copied', `${label} copied to clipboard`);
+  };
+
+  const handleDownloadCSV = async () => {
+    if (!customerId || !apiKey) {
+      showToast('error', 'Error', 'Please generate an API key first');
+      return;
+    }
+
+    try {
+      // Fetch data from the API
+      const response = await fetch(`/api/sharecells?customer_id=${customerId}&apikey=${apiKey}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
+      }
+
+      const jsonData = await response.json();
+      
+      if (!jsonData.data || jsonData.data.length === 0) {
+        showToast('error', 'Error', 'No data available to export');
+        return;
+      }
+
+      // Convert JSON data to CSV
+      let csvContent = '';
+      
+      // Process each sheet
+      jsonData.data.forEach((sheetData: any, sheetIndex: number) => {
+        const sheetRows = sheetData.rows;
+        const sheetName = sheetData.sheet_name;
+        
+        if (!sheetRows || sheetRows.length === 0) return;
+        
+        // Add sheet separator if not the first sheet
+        if (sheetIndex > 0) {
+          csvContent += '\n'; // Empty line between sheets
+        }
+        
+        // Add sheet name as header
+        csvContent += `${sheetName}\n`;
+        
+        // Get all column names from the first row (maintain original order)
+        const columns = Object.keys(sheetRows[0]);
+        
+        // Add header row
+        csvContent += columns.join(',') + '\n';
+        
+        // Add data rows
+        sheetRows.forEach((row: any) => {
+          const values = columns.map(col => {
+            const value = row[col] || '';
+            // Escape quotes and wrap in quotes if contains comma, quote, or newline
+            if (value.toString().includes(',') || value.toString().includes('"') || value.toString().includes('\n')) {
+              return `"${value.toString().replace(/"/g, '""')}"`;
+            }
+            return value;
+          });
+          csvContent += values.join(',') + '\n';
+        });
+      });
+
+      // Create and download the file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `sharecells_data_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      showToast('success', 'Success', 'CSV file downloaded successfully');
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      showToast('error', 'Error', 'Failed to download CSV file');
+    }
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto">
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">API Key</h1>
+
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Left Card - Generate API Key */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Generate API Key</h2>
+            <p className="text-sm text-gray-600 mb-6">Create a new API key for accessing the inventory system.</p>
+
+            {/* Customer ID */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Customer ID
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={customerId}
+                  readOnly
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-sm"
+                />
+              </div>
+            </div>
+
+            {/* Generated API Key */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Generated API Key
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={apiKey}
+                  readOnly
+                  placeholder={apiKey ? '' : 'No API key generated yet'}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-sm"
+                />
+                <button
+                  onClick={() => copyToClipboard(apiKey, 'API Key')}
+                  disabled={!apiKey}
+                  className="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  Copy
+                </button>
+              </div>
+            </div>
+
+          {/* Complete API URL */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Complete API URL
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={apiUrl}
+                readOnly
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-sm"
+              />
+              <button
+                onClick={() => copyToClipboard(apiUrl, 'API URL')}
+                className="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Copy
+              </button>
+            </div>
+          </div>
+
+          {/* Generate Key Button */}
+          <button
+            onClick={generateKey}
+            disabled={generating}
+            className="w-full px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+            </svg>
+            {generating ? 'Generating...' : 'Generate Key'}
+          </button>
+        </div>
+
+        {/* Right Card - Export to External File */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Export to external file</h2>
+          <p className="text-sm text-gray-600 mb-6">Download inventory data in various formats for external use.</p>
+
+          {/* Export to CSV Section */}
+          <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 mb-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Export to CSV file</h3>
+            <p className="text-sm text-gray-700 mb-4">
+              CSV files are plaintext data files separated by commas, so they can be opened directly as Excel sheets and are a very useful file format for exporting and importing data from other programs.
+            </p>
+            <button
+              onClick={handleDownloadCSV}
+              className="w-full px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Download CSV
+            </button>
+          </div>
+
+          {/* CSV Structure Info */}
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <h4 className="text-sm font-semibold text-gray-900 mb-2">CSV Structure</h4>
+            <p className="text-xs text-gray-700 mb-2">
+              The CSV file will contain data from all sheets with actual field names, username, and update time:
+            </p>
+            <div className="bg-yellow-100 rounded p-2">
+              <code className="text-xs text-gray-800 break-all">
+                Sheet Name<br/>
+                Field1,Field2,Field3,...,Username,Updated_At<br/>
+                value1,value2,value3,...,username,timestamp
+              </code>
+            </div>
+          </div>
+        </div>
+      </div>
+      )}
+    </div>
+  );
+}

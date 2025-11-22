@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
           password: validatedData.password,
           projectId: process.env.PULSEPOINT_PROJECT_ID
         });
-
+        console.log(response.data);
         if (response.data.status === 1) {
           // Get user details from PulsePoint
           const userDetailsResponse = await axios.get('https://api.pulsepoint.clinotag.com/api/user/allusers', {

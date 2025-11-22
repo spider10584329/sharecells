@@ -33,26 +33,16 @@ export default function AgentSheetCard({ sheet, onView }: AgentSheetCardProps) {
         </div>
         <h3 className="text-lg font-semibold text-gray-800 mb-1 text-center">{sheet.sheet_name}</h3>
       </div>
-      <div className="flex items-center justify-between text-xs text-gray-500 mt-3 pt-3 border-t border-gray-200">
-        <div className="flex items-center gap-1 text-blue-600">
-          <img 
-            src="/svg/share_user.svg" 
-            alt="Shared by" 
-            className="w-5 h-5 opacity-60"
-          />
-          <span className="text-sm text-gray-600 font-medium">{sheet.manager_name || 'Admin'}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="hidden sm:inline">
-            {new Date(sheet.created_at || '').toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit'
-            })}
-          </span>
-        </div>
+      <div className="flex items-center justify-end text-xs text-gray-500 mt-3 pt-3 border-t border-gray-200">
+        <span className="hidden sm:inline">
+          {new Date(sheet.created_at || '').toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          })}
+        </span>
       </div>
     </div>
   );

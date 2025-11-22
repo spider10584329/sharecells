@@ -92,16 +92,20 @@ export async function GET(
       };
     });
 
-    // Convert to array and sort by user_id, then by minCellId (earliest cell ID = earliest created)
+    // Convert to array and sort: User rows first (by user_id), then admin rows (user_id = null) at the end
     const rows = Array.from(rowsMap.values()).sort((a, b) => {
-      // First sort by user_id (nulls/admin first)
-      const userIdA = a.user_id || 0;
-      const userIdB = b.user_id || 0;
-      if (userIdA !== userIdB) {
-        return userIdA - userIdB;
+      // Admin rows (user_id = null) always come last
+      if (a.user_id === null && b.user_id !== null) return 1;
+      if (a.user_id !== null && b.user_id === null) return -1;
+      
+      // Both are admin rows OR both are user rows
+      if (a.user_id === b.user_id) {
+        // Sort by minimum cell ID (earliest created first within same user)
+        return a.minCellId - b.minCellId;
       }
-      // Then sort by minimum cell ID (earliest created first)
-      return a.minCellId - b.minCellId;
+      
+      // Different users - sort by user_id
+      return a.user_id - b.user_id;
     });
 
     return NextResponse.json({

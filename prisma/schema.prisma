@@ -85,3 +85,13 @@ model sheet_view {
   manager_id String @db.VarChar(255)
   view_type  Int?   @default(0) @db.MediumInt
 }
+
+model apikey {
+  id          Int      @id @default(autoincrement())
+  customer_id Int      @unique
+  api_key     String   @db.VarChar(255)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@map("apikey")
+}
