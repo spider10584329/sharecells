@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 22, 2025 at 11:01 AM
+-- Generation Time: Nov 25, 2025 at 10:50 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -91,6 +91,7 @@ CREATE TABLE `fields` (
   `manager_id` int(11) NOT NULL,
   `sheet_id` int(11) NOT NULL,
   `sheet_type` int(11) DEFAULT NULL,
+  `data_format` varchar(255) NOT NULL,
   `cell_title` varchar(255) DEFAULT NULL,
   `cell_content` varchar(255) DEFAULT '150',
   `created_at` varchar(255) DEFAULT NULL
@@ -151,6 +152,13 @@ CREATE TABLE `users` (
   `passwordRequest` varchar(255) DEFAULT NULL,
   `isPasswordRequest` tinyint(4) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `manager_id`, `username`, `password`, `isActive`, `passwordRequest`, `isPasswordRequest`) VALUES
+(30, 25, 'aaa', '$pbkdf2-sha256$29000$Cr0U7M4uE4nfcbUJn4M8Z7.Ublh0qxIk0Mne1/CDfmc$wQEVyXnOCKXlN.SzoeCmBkgY7y7corqyJM2x78W50qY', 1, NULL, 0);
 
 --
 -- Indexes for dumped tables
@@ -231,13 +239,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `apikey`
 --
 ALTER TABLE `apikey`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `cells`
 --
 ALTER TABLE `cells`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1101;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1129;
 
 --
 -- AUTO_INCREMENT for table `departments`
@@ -249,31 +257,31 @@ ALTER TABLE `departments`
 -- AUTO_INCREMENT for table `fields`
 --
 ALTER TABLE `fields`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=174;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=180;
 
 --
 -- AUTO_INCREMENT for table `sharesheets`
 --
 ALTER TABLE `sharesheets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=110;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=111;
 
 --
 -- AUTO_INCREMENT for table `sheets`
 --
 ALTER TABLE `sheets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
 
 --
 -- AUTO_INCREMENT for table `sheet_view`
 --
 ALTER TABLE `sheet_view`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
