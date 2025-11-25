@@ -40,20 +40,20 @@ export default function AgentSheetTable({ sheets, loading, onView }: AgentSheetT
   }
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-100">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden border-1 border-[#d4a600]">
+      <table className="min-w-full divide-y divide-[#d4a600]">
+        <thead className="bg-[#fff2aa]">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b-1 border-[#d4a600]">
               #
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b-1 border-[#d4a600]">
               Sheet Name
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b-1 border-[#d4a600]">
               Shared By
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b-1 border-[#d4a600]">
               Created Date
             </th>
           </tr>
@@ -63,7 +63,7 @@ export default function AgentSheetTable({ sheets, loading, onView }: AgentSheetT
             <tr 
               key={sheet.id} 
               onClick={() => onView(sheet.id, sheet.sheet_name)}
-              className="hover:bg-gray-50 transition-colors cursor-pointer"
+              className="hover:bg-[#fffbf0] transition-colors cursor-pointer"
             >
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {index + 1}

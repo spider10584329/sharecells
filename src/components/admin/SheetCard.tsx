@@ -16,7 +16,7 @@ interface SheetCardProps {
 export default function SheetCard({ sheet, onSettings, onDelete, onView }: SheetCardProps) {
   return (
     <div 
-      className="border border-gray-300 rounded-lg p-4 hover:shadow-lg transition-shadow duration-200 bg-white cursor-pointer"
+      className="border-2 border-[#d4a600] rounded-lg p-4 hover:shadow-lg transition-shadow duration-200 bg-[#fffbf0] cursor-pointer"
       onClick={() => onView(sheet.id, sheet.sheet_name)}
     >
       <div className="mb-2">

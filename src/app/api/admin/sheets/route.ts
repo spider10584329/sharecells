@@ -45,6 +45,21 @@ export async function POST(request: NextRequest) {
     // For admin, use the customerId from the token (PulsePoint user ID)
     const managerId = decoded.userId;
 
+    // Check if sheet number already exists for this manager
+    const existingSheetNumber = await prisma.sheets.findFirst({
+      where: {
+        manager_id: managerId,
+        sheet_number: parseInt(sheetNumber)
+      }
+    });
+
+    if (existingSheetNumber) {
+      return NextResponse.json(
+        { success: false, message: 'A sheet with this number already exists' },
+        { status: 409 }
+      );
+    }
+
     // Check if sheet name already exists for this manager
     const existingSheet = await prisma.sheets.findFirst({
       where: {

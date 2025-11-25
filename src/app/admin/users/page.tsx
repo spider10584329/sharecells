@@ -193,27 +193,27 @@ export default function AdminUsersPage() {
             No users found for your account.
           </div>
         ) : (
-          <div className="overflow-x-auto border border-gray-300 rounded-lg overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200 ">
-              <thead className="bg-gray-100">
+          <div className="overflow-x-auto border-1 border-[#d4a600] rounded-lg overflow-hidden">
+            <table className="min-w-full divide-y divide-[#d4a600]">
+              <thead className="bg-[#fff2aa]">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b-1 border-[#d4a600]">
                     Username
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b-1 border-[#d4a600]">
                     Active Status
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b-1 border-[#d4a600]">
                     Password Change
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b-1 border-[#d4a600]">
                     Delete
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
+                  <tr key={user.id} className="hover:bg-[#fffbf0] transition-colors">
                     <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                       {user.username}
                       {user.isPasswordRequest === 1 && (

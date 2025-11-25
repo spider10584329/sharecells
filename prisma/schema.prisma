@@ -74,6 +74,7 @@ model fields {
   sheet_type   Int?
   cell_title   String? @db.VarChar(255)
   cell_content String? @default("150") @db.VarChar(255)
+  data_format  String? @default("text") @db.VarChar(50)
   created_at   String? @db.VarChar(255)
 
   @@index([sheet_id], map: "cells_ibfk_1")

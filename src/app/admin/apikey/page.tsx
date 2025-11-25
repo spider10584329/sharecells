@@ -91,43 +91,77 @@ export default function APIKeyPage() {
         return;
       }
 
-      // Convert JSON data to CSV
-      let csvContent = '';
+      // Convert JSON data to CSV with new format: sheet_id, sheet_name, time, user, field1, field2, ...
+      const allRows: string[] = [];
       
-      // Process each sheet
-      jsonData.data.forEach((sheetData: any, sheetIndex: number) => {
+      // Collect all unique field names across all sheets
+      const allFieldNames = new Set<string>();
+      jsonData.data.forEach((sheetData: any) => {
+        const sheetRows = sheetData.rows;
+        if (sheetRows && sheetRows.length > 0) {
+          Object.keys(sheetRows[0]).forEach(key => {
+            // Exclude Username and Updated_At from field columns
+            if (key !== 'Username' && key !== 'Updated_At') {
+              allFieldNames.add(key);
+            }
+          });
+        }
+      });
+      
+      const fieldColumns = Array.from(allFieldNames);
+      
+      // Create header row: sheet_id, sheet_name, time, user, field1, field2, ...
+      const headers = ['sheet_id', 'sheet_name', 'time', 'user', ...fieldColumns];
+      allRows.push(headers.join(','));
+      
+      // Process each sheet and add data rows
+      jsonData.data.forEach((sheetData: any) => {
         const sheetRows = sheetData.rows;
         const sheetName = sheetData.sheet_name;
+        const sheetId = sheetData.sheet_id || '';
         
         if (!sheetRows || sheetRows.length === 0) return;
         
-        // Add sheet separator if not the first sheet
-        if (sheetIndex > 0) {
-          csvContent += '\n'; // Empty line between sheets
-        }
-        
-        // Add sheet name as header
-        csvContent += `${sheetName}\n`;
-        
-        // Get all column names from the first row (maintain original order)
-        const columns = Object.keys(sheetRows[0]);
-        
-        // Add header row
-        csvContent += columns.join(',') + '\n';
-        
-        // Add data rows
         sheetRows.forEach((row: any) => {
-          const values = columns.map(col => {
-            const value = row[col] || '';
-            // Escape quotes and wrap in quotes if contains comma, quote, or newline
-            if (value.toString().includes(',') || value.toString().includes('"') || value.toString().includes('\n')) {
-              return `"${value.toString().replace(/"/g, '""')}"`;
-            }
-            return value;
+          const rowData: string[] = [];
+          
+          // Add sheet_id
+          rowData.push(sheetId.toString());
+          
+          // Add sheet_name (escape if needed)
+          const escapedSheetName = sheetName.includes(',') || sheetName.includes('"') || sheetName.includes('\n')
+            ? `"${sheetName.replace(/"/g, '""')}"`
+            : sheetName;
+          rowData.push(escapedSheetName);
+          
+          // Add time (Updated_At)
+          const time = row.Updated_At || '';
+          const escapedTime = time.includes(',') || time.includes('"') || time.includes('\n')
+            ? `"${time.replace(/"/g, '""')}"`
+            : time;
+          rowData.push(escapedTime);
+          
+          // Add user (Username)
+          const user = row.Username || '';
+          const escapedUser = user.includes(',') || user.includes('"') || user.includes('\n')
+            ? `"${user.replace(/"/g, '""')}"`
+            : user;
+          rowData.push(escapedUser);
+          
+          // Add field values in the order of fieldColumns
+          fieldColumns.forEach(fieldName => {
+            const value = row[fieldName] || '';
+            const escapedValue = value.toString().includes(',') || value.toString().includes('"') || value.toString().includes('\n')
+              ? `"${value.toString().replace(/"/g, '""')}"`
+              : value;
+            rowData.push(escapedValue);
           });
-          csvContent += values.join(',') + '\n';
+          
+          allRows.push(rowData.join(','));
         });
       });
+
+      const csvContent = allRows.join('\n');
 
       // Create and download the file
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -267,13 +301,12 @@ export default function APIKeyPage() {
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <h4 className="text-sm font-semibold text-gray-900 mb-2">CSV Structure</h4>
             <p className="text-xs text-gray-700 mb-2">
-              The CSV file will contain data from all sheets with actual field names, username, and update time:
+              The CSV file will contain data with the following format:
             </p>
             <div className="bg-yellow-100 rounded p-2">
               <code className="text-xs text-gray-800 break-all">
-                Sheet Name<br/>
-                Field1,Field2,Field3,...,Username,Updated_At<br/>
-                value1,value2,value3,...,username,timestamp
+                sheet_id,sheet_name,time,user,field1,field2,...<br/>
+                1,Sheet Name,2025-01-15 10:30:00,username,value1,value2,...
               </code>
             </div>
           </div>

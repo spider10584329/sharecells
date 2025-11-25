@@ -148,8 +148,9 @@ export async function GET(request: NextRequest) {
         return flatRow;
       });
 
-      // Add this sheet's data with sheet name
+      // Add this sheet's data with sheet name and sheet_id
       sheetsData.push({
+        sheet_id: sheet.id,
         sheet_name: sheet.sheet_name,
         rows: rows
       });

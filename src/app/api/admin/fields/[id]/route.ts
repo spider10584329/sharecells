@@ -80,7 +80,7 @@ export async function PATCH(
     const { id } = await params;
     const fieldId = parseInt(id);
     const body = await request.json();
-    const { cell_title, cell_content, sheet_type } = body;
+    const { cell_title, cell_content, sheet_type, data_format } = body;
 
     // Verify the field belongs to this manager
     const field = await prisma.fields.findFirst({
@@ -101,7 +101,8 @@ export async function PATCH(
       data: {
         ...(cell_title !== undefined && { cell_title }),
         ...(cell_content !== undefined && { cell_content }),
-        ...(sheet_type !== undefined && { sheet_type })
+        ...(sheet_type !== undefined && { sheet_type }),
+        ...(data_format !== undefined && { data_format })
       }
     });
 

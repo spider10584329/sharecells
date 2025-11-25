@@ -9,6 +9,7 @@ interface Field {
   cell_title: string;
   cell_content: string;
   sheet_type: number;
+  data_format: string;
 }
 
 interface CellData {
@@ -478,23 +479,128 @@ export default function SheetViewer({ sheetId, sheetName, onClose }: SheetViewer
                         
                         const isEditing = editingCell?.rowUuid === row.uuid && editingCell?.rowUserId === row.user_id && editingCell?.fieldId === field.id;
 
-                        return (
-                          <td
-                            key={field.id}
-                            className={`border-r border-b border-gray-200 p-0 m-0 ${isReadOnly ? 'bg-gray-50' : ''}`}
-                            style={{ width: `${columnWidths[field.id] || 150}px` }}
-                          >
-                            {isEditing ? (
-                              <input
-                                type="text"
-                                value={editValue}
-                                onChange={(e) => setEditValue(e.target.value)}
-                                onBlur={handleCellBlur}
-                                onKeyDown={handleKeyDown}
-                                className="w-full h-full px-2 py-2 text-sm border-0 focus:outline-none focus:border-1 focus:border-green-500 "
-                                autoFocus
-                              />
-                            ) : (
+                        // Render different input types based on data_format
+                        const renderCellInput = () => {
+                          const dataFormat = field.data_format || 'text';
+                          
+                          if (dataFormat === 'checkbox') {
+                            // Checkbox: store as "yes"/"no"
+                            const isChecked = cellValue.toLowerCase() === 'yes';
+                            return (
+                              <div className="w-full h-full px-2 py-2 flex items-center justify-center">
+                                <input
+                                  type="checkbox"
+                                  checked={isChecked}
+                                  onChange={async (e) => {
+                                    const newValue = e.target.checked ? 'yes' : 'no';
+                                    setEditValue(newValue);
+                                    
+                                    // Update local state immediately
+                                    setRows(prevRows => prevRows.map(r => {
+                                      if (r.uuid === row.uuid && r.user_id === row.user_id) {
+                                        return {
+                                          ...r,
+                                          cells: {
+                                            ...r.cells,
+                                            [field.id]: {
+                                              id: r.cells[field.id]?.id || 0,
+                                              value: newValue
+                                            }
+                                          }
+                                        };
+                                      }
+                                      return r;
+                                    }));
+                                    
+                                    // Save to database
+                                    try {
+                                      await fetch('/api/admin/cell-data', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                          sheet_id: sheetId,
+                                          field_id: field.id,
+                                          uuid: row.uuid,
+                                          value: newValue
+                                        })
+                                      });
+                                    } catch (error) {
+                                      console.error('Error updating checkbox:', error);
+                                    }
+                                  }}
+                                  disabled={isReadOnly}
+                                  className="w-4 h-4 cursor-pointer disabled:cursor-default"
+                                />
+                              </div>
+                            );
+                          }
+                          
+                          if (isEditing) {
+                            if (dataFormat === 'number') {
+                              return (
+                                <input
+                                  type="number"
+                                  value={editValue}
+                                  onChange={(e) => setEditValue(e.target.value)}
+                                  onBlur={handleCellBlur}
+                                  onKeyDown={handleKeyDown}
+                                  className="w-full h-full px-2 py-2 text-sm border-0 focus:outline-none focus:border-1 focus:border-green-500"
+                                  autoFocus
+                                />
+                              );
+                            } else if (dataFormat === 'time') {
+                              return (
+                                <input
+                                  type="time"
+                                  value={editValue}
+                                  onChange={(e) => setEditValue(e.target.value)}
+                                  onBlur={handleCellBlur}
+                                  onKeyDown={handleKeyDown}
+                                  className="w-full h-full px-2 py-2 text-sm border-0 focus:outline-none focus:border-1 focus:border-green-500"
+                                  autoFocus
+                                />
+                              );
+                            } else if (dataFormat === 'date') {
+                              return (
+                                <input
+                                  type="date"
+                                  value={editValue}
+                                  onChange={(e) => setEditValue(e.target.value)}
+                                  onBlur={handleCellBlur}
+                                  onKeyDown={handleKeyDown}
+                                  className="w-full h-full px-2 py-2 text-sm border-0 focus:outline-none focus:border-1 focus:border-green-500"
+                                  autoFocus
+                                />
+                              );
+                            } else if (dataFormat === 'datetime') {
+                              return (
+                                <input
+                                  type="datetime-local"
+                                  value={editValue}
+                                  onChange={(e) => setEditValue(e.target.value)}
+                                  onBlur={handleCellBlur}
+                                  onKeyDown={handleKeyDown}
+                                  className="w-full h-full px-2 py-2 text-sm border-0 focus:outline-none focus:border-1 focus:border-green-500"
+                                  autoFocus
+                                />
+                              );
+                            } else {
+                              // Default text input
+                              return (
+                                <input
+                                  type="text"
+                                  value={editValue}
+                                  onChange={(e) => setEditValue(e.target.value)}
+                                  onBlur={handleCellBlur}
+                                  onKeyDown={handleKeyDown}
+                                  className="w-full h-full px-2 py-2 text-sm border-0 focus:outline-none focus:border-1 focus:border-green-500"
+                                  autoFocus
+                                />
+                              );
+                            }
+                          } else {
+                            // Display mode
+                            return (
                               <div
                                 onClick={() => handleCellClick(row.uuid, field.id, cellValue, rowIndex, row)}
                                 className={`w-full text-sm px-2 py-2 ${isReadOnly ? 'text-gray-500 cursor-default' : 'text-gray-900 cursor-pointer hover:bg-blue-50'} overflow-hidden text-ellipsis flex items-center m-0`}
@@ -503,7 +609,17 @@ export default function SheetViewer({ sheetId, sheetName, onClose }: SheetViewer
                                   <span className="text-gray-400 h-[25px]"></span>
                                 )}
                               </div>
-                            )}
+                            );
+                          }
+                        };
+
+                        return (
+                          <td
+                            key={field.id}
+                            className={`border-r border-b border-gray-200 p-0 m-0 ${isReadOnly ? 'bg-gray-50' : ''}`}
+                            style={{ width: `${columnWidths[field.id] || 150}px` }}
+                          >
+                            {renderCellInput()}
                           </td>
                         );
                       })}

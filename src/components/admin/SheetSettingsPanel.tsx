@@ -13,6 +13,7 @@ interface Field {
   cell_title: string;
   cell_content: string;
   sheet_type: number;
+  data_format: string;
 }
 
 interface User {
@@ -28,11 +29,13 @@ export default function SheetSettingsPanel({ sheetId, sheetName, onClose, onShee
   const [editingFieldId, setEditingFieldId] = useState<number | null>(null);
   const [editingField, setEditingField] = useState({
     fieldName: '',
-    dataType: 'dynamic'
+    dataType: 'dynamic',
+    dataFormat: 'text'
   });
   const [newField, setNewField] = useState({
     fieldName: '',
-    dataType: 'dynamic'
+    dataType: 'dynamic',
+    dataFormat: 'text'
   });
   const [sheetInfo, setSheetInfo] = useState({
     sheetNumber: '',
@@ -258,7 +261,8 @@ export default function SheetSettingsPanel({ sheetId, sheetName, onClose, onShee
           sheet_id: sheetId,
           cell_title: newField.fieldName,
           cell_content: '150', // Default column width
-          sheet_type: getDataTypeValue(newField.dataType)
+          sheet_type: getDataTypeValue(newField.dataType),
+          data_format: newField.dataFormat
         })
       });
 
@@ -280,7 +284,7 @@ export default function SheetSettingsPanel({ sheetId, sheetName, onClose, onShee
       console.log('Response data:', data);
 
       if (response.ok) {
-        setNewField({ fieldName: '', dataType: 'dynamic' });
+        setNewField({ fieldName: '', dataType: 'dynamic', dataFormat: 'text' });
         fetchFields();
       } else {
         console.error('Failed to add field:', data);
@@ -310,7 +314,8 @@ export default function SheetSettingsPanel({ sheetId, sheetName, onClose, onShee
     setEditingFieldId(field.id);
     setEditingField({
       fieldName: field.cell_title || '',
-      dataType: getDataTypeString(field.sheet_type)
+      dataType: getDataTypeString(field.sheet_type),
+      dataFormat: field.data_format || 'text'
     });
   };
 
@@ -318,7 +323,8 @@ export default function SheetSettingsPanel({ sheetId, sheetName, onClose, onShee
     setEditingFieldId(null);
     setEditingField({
       fieldName: '',
-      dataType: 'dynamic'
+      dataType: 'dynamic',
+      dataFormat: 'text'
     });
   };
 
@@ -331,7 +337,8 @@ export default function SheetSettingsPanel({ sheetId, sheetName, onClose, onShee
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           cell_title: editingField.fieldName,
-          sheet_type: getDataTypeValue(editingField.dataType)
+          sheet_type: getDataTypeValue(editingField.dataType),
+          data_format: editingField.dataFormat
           // Don't update cell_content here, it stores column width
         })
       });
@@ -340,7 +347,8 @@ export default function SheetSettingsPanel({ sheetId, sheetName, onClose, onShee
         setEditingFieldId(null);
         setEditingField({
           fieldName: '',
-          dataType: 'dynamic'
+          dataType: 'dynamic',
+          dataFormat: 'text'
         });
         fetchFields();
       } else {
@@ -376,6 +384,19 @@ export default function SheetSettingsPanel({ sheetId, sheetName, onClose, onShee
     };
     return labels[value] || 'Static';
   };
+
+  const getDataFormatLabel = (value: string): string => {
+    const labels: { [key: string]: string } = {
+      'text': 'Text',
+      'datetime': 'Date & Time (Now)',
+      'number': 'Number',
+      'time': 'Time',
+      'date': 'Date Picker',
+      'checkbox': 'Checkbox'
+    };
+    return labels[value] || 'Text';
+  };
+  
   return (
     <div className="h-full flex flex-col">
       {/* Panel Header */}
@@ -400,14 +421,15 @@ export default function SheetSettingsPanel({ sheetId, sheetName, onClose, onShee
             <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
               {/* Table with fixed header and all rows visible - with horizontal scroll */}
               <div className="overflow-x-auto">
-                <div className="flex flex-col min-w-[600px]">
+                <div className="flex flex-col min-w-[800px]">
                 {/* Fixed Header */}
                 <div className="flex-shrink-0">
                   <table className="w-full border-collapse table-fixed">
                     <colgroup>
-                      <col className="w-1/3" />
-                      <col className="w-1/3" />
-                      <col className="w-1/3" />
+                      <col className="w-1/4" />
+                      <col className="w-1/4" />
+                      <col className="w-1/4" />
+                      <col className="w-1/4" />
                     </colgroup>
                     <thead>
                       <tr className="bg-gray-100">
@@ -416,6 +438,9 @@ export default function SheetSettingsPanel({ sheetId, sheetName, onClose, onShee
                         </th>
                         <th className="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-300">
                           Data Type
+                        </th>
+                        <th className="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-300">
+                          Data Format
                         </th>
                         <th className="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-300">
                           Actions
@@ -429,9 +454,10 @@ export default function SheetSettingsPanel({ sheetId, sheetName, onClose, onShee
                 <div className="flex-shrink-0 border-b border-gray-200">
                   <table className="w-full border-collapse table-fixed">
                     <colgroup>
-                      <col className="w-1/3" />
-                      <col className="w-1/3" />
-                      <col className="w-1/3" />
+                      <col className="w-1/4" />
+                      <col className="w-1/4" />
+                      <col className="w-1/4" />
+                      <col className="w-1/4" />
                     </colgroup>
                     <tbody className="bg-white">
                       <tr className="bg-blue-50">
@@ -455,6 +481,20 @@ export default function SheetSettingsPanel({ sheetId, sheetName, onClose, onShee
                           </select>
                         </td>
                         <td className="px-2 md:px-4 py-3">
+                          <select
+                            value={newField.dataFormat}
+                            onChange={(e) => setNewField({ ...newField, dataFormat: e.target.value })}
+                            className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:border-gray-500"
+                          >
+                            <option value="text">Text</option>
+                            <option value="datetime">Date & Time (Now)</option>
+                            <option value="number">Number</option>
+                            <option value="time">Time</option>
+                            <option value="date">Date Picker</option>
+                            <option value="checkbox">Checkbox</option>
+                          </select>
+                        </td>
+                        <td className="px-2 md:px-4 py-3">
                           <button
                             onClick={handleAddField}
                             disabled={!newField.fieldName.trim()}
@@ -472,21 +512,22 @@ export default function SheetSettingsPanel({ sheetId, sheetName, onClose, onShee
                 <div className="flex-shrink-0 max-h-[calc(100vh-425px)] overflow-y-auto">
                   <table className="w-full border-collapse table-fixed">
                     <colgroup>
-                      <col className="w-1/3" />
-                      <col className="w-1/3" />
-                      <col className="w-1/3" />
+                      <col className="w-1/4" />
+                      <col className="w-1/4" />
+                      <col className="w-1/4" />
+                      <col className="w-1/4" />
                     </colgroup>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {/* Display Existing Fields */}
                       {loading ? (
                         <tr>
-                          <td colSpan={3} className="px-4 py-8 text-center text-sm text-gray-500">
+                          <td colSpan={4} className="px-4 py-8 text-center text-sm text-gray-500">
                             Loading fields...
                           </td>
                         </tr>
                       ) : fields.length === 0 ? (
                         <tr>
-                          <td colSpan={3} className="px-4 py-8 text-center text-sm text-gray-500">
+                          <td colSpan={4} className="px-4 py-8 text-center text-sm text-gray-500">
                             No fields added yet. Use the form above to add fields.
                           </td>
                         </tr>
@@ -515,6 +556,20 @@ export default function SheetSettingsPanel({ sheetId, sheetName, onClose, onShee
                                   </select>
                                 </td>
                                 <td className="px-2 md:px-4 py-3">
+                                  <select
+                                    value={editingField.dataFormat}
+                                    onChange={(e) => setEditingField({ ...editingField, dataFormat: e.target.value })}
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:border-gray-500"
+                                  >
+                                    <option value="text">Text</option>
+                                    <option value="datetime">Date & Time (Now)</option>
+                                    <option value="number">Number</option>
+                                    <option value="time">Time</option>
+                                    <option value="date">Date Picker</option>
+                                    <option value="checkbox">Checkbox</option>
+                                  </select>
+                                </td>
+                                <td className="px-2 md:px-4 py-3">
                                   <div className="flex items-center gap-1 md:gap-2 flex-wrap">
                                     <button
                                       onClick={() => handleUpdateField(field.id)}
@@ -536,6 +591,7 @@ export default function SheetSettingsPanel({ sheetId, sheetName, onClose, onShee
                               <>
                                 <td className="px-2 md:px-4 py-3 text-sm text-gray-900">{field.cell_title}</td>
                                 <td className="px-2 md:px-4 py-3 text-sm text-gray-600">{getDataTypeLabel(field.sheet_type)}</td>
+                                <td className="px-2 md:px-4 py-3 text-sm text-gray-600">{getDataFormatLabel(field.data_format)}</td>
                                 <td className="px-2 md:px-4 py-3 text-sm">
                                   <div className="flex items-center gap-1 md:gap-2">
                                     <button 

@@ -246,12 +246,19 @@ function HomeContent() {
   };
 
   return (
-     <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#b1bcd4' }}>
+     <div className="min-h-screen flex items-center justify-center p-4" style={{ 
+       background: 'linear-gradient(135deg, #fdf0a2ff 0%, #fdf0a2ff 50%, #fdf0a2ff 100%)'
+     }}>
       {/* Responsive Login Card */}
-      <div className="bg-white rounded-lg shadow-2xl overflow-hidden w-full max-w-6xl mx-auto">
+      <div className="rounded-lg shadow-2xl overflow-hidden w-full max-w-6xl mx-auto" 
+           style={{ 
+             background: 'var(--card-bg)',
+             boxShadow: 'var(--shadow-lg)'
+           }}>
         <div className="flex flex-col xl:flex-row min-h-[500px] xl:min-h-[600px]">
           {/* Image Section - Always visible, responsive positioning */}
-          <div className="xl:w-2/5 w-full flex items-center justify-center p-4 xl:p-6 bg-[#f2c812]">
+          <div className="xl:w-2/5 w-full flex items-center justify-center p-4 xl:p-6" 
+               style={{ background: 'var(--primary-yellow)' }}>
             <div className="w-full h-full flex items-center justify-center">
               <img 
                 src="/sharecells-logo.png" 
@@ -265,7 +272,8 @@ function HomeContent() {
           <div className="xl:w-3/5 w-full px-4 sm:px-6 xl:px-8 py-6 xl:py-8 flex flex-col justify-center">
             <div className="max-w-md mx-auto w-full">
               <div className="text-center mb-4 xl:mb-6 relative">
-                <h1 className="text-lg sm:text-xl xl:text-2xl font-semibold text-gray-800 mb-2">
+                <h1 className="text-lg sm:text-xl xl:text-2xl font-semibold mb-2" 
+                    style={{ color: 'var(--neutral-800)' }}>
                   {isLogin ? 'Sign in to Your Account' : 'Create Your Account'}
                 </h1>
                 
@@ -273,31 +281,40 @@ function HomeContent() {
                 {isLogin && (
                   <div className="flex flex-col items-center gap-2">
                     <div className="flex justify-center">
-                      <div className="inline-flex items-center gap-2 bg-gray-100 rounded-full p-1">
+                      <div className="inline-flex items-center gap-2 rounded-full p-1" 
+                           style={{ background: 'var(--neutral-100)' }}>
                         <button
                           onClick={() => setUserRole('admin')}
-                          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
-                            userRole === 'admin'
-                              ? 'bg-gray-900 text-white shadow-sm'
-                              : 'bg-transparent text-gray-600 hover:text-gray-900'
-                          }`}
+                          className="px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200"
+                          style={userRole === 'admin' ? {
+                            background: 'linear-gradient(135deg, var(--primary-yellow), var(--accent-gold))',
+                            color: 'var(--neutral-900)',
+                            boxShadow: 'var(--shadow-sm)'
+                          } : {
+                            background: 'transparent',
+                            color: 'var(--neutral-600)'
+                          }}
                         >
                           Admin
                         </button>
                         <button
                           onClick={() => setUserRole('agent')}
-                          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
-                            userRole === 'agent'
-                              ? 'bg-gray-900 text-white shadow-sm'
-                              : 'bg-transparent text-gray-600 hover:text-gray-900'
-                          }`}
+                          className="px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200"
+                          style={userRole === 'agent' ? {
+                            background: 'linear-gradient(135deg, var(--primary-yellow), var(--accent-gold))',
+                            color: 'var(--neutral-900)',
+                            boxShadow: 'var(--shadow-sm)'
+                          } : {
+                            background: 'transparent',
+                            color: 'var(--neutral-600)'
+                          }}
                         >
                           Agent
                         </button>
                       </div>
                     </div>
                     {userRole === 'admin' && (
-                      <p className="text-xs text-gray-600 ">
+                      <p className="text-xs" style={{ color: 'var(--neutral-600)' }}>
                         You must sign up with a pulsepoint account.
                       </p>
                     )}
@@ -309,7 +326,8 @@ function HomeContent() {
                 // Login Form
                 <div className="space-y-4 xl:space-y-2">
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="email" className="block text-sm font-medium mb-2"
+                           style={{ color: 'var(--neutral-700)' }}>
                       {userRole === 'admin' ? 'Manager Email' : 'Username'}
                     </label>
                     <input
@@ -319,13 +337,27 @@ function HomeContent() {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full text-sm px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-500 transition-colors"
+                      className="w-full text-sm px-4 py-2 rounded-lg focus:outline-none transition-all duration-200"
+                      style={{
+                        background: 'var(--input-bg)',
+                        border: '1px solid var(--neutral-300)',
+                        color: 'var(--neutral-900)'
+                      }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--primary-yellow)';
+                        e.currentTarget.style.boxShadow = '0 0 0 3px rgba(242, 200, 18, 0.1)';
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--neutral-300)';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
                       placeholder={userRole === 'admin' ? 'Enter your manager email' : 'Enter your username'}
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="password" className="block text-sm font-medium mb-2"
+                           style={{ color: 'var(--neutral-700)' }}>
                       Password
                     </label>
                     <input
@@ -335,7 +367,20 @@ function HomeContent() {
                       value={formData.password}
                       onChange={handleChange}
                       required
-                      className="w-full text-sm px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-500 transition-colors"
+                      className="w-full text-sm px-4 py-2 rounded-lg focus:outline-none transition-all duration-200"
+                      style={{
+                        background: 'var(--input-bg)',
+                        border: '1px solid var(--neutral-300)',
+                        color: 'var(--neutral-900)'
+                      }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--primary-yellow)';
+                        e.currentTarget.style.boxShadow = '0 0 0 3px rgba(242, 200, 18, 0.1)';
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--neutral-300)';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
                       placeholder="Enter your password"
                     />
                   </div>
@@ -343,7 +388,24 @@ function HomeContent() {
                        <button
                           onClick={handleLoginClick}
                           disabled={submitLoading}
-                          className="w-full  bg-gray-900 text-white font-semibold py-2 px-6 rounded-lg hover:bg-black focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                          className="w-full font-semibold py-2 px-6 rounded-lg focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                          style={{
+                            background: submitLoading ? 'var(--neutral-400)' : 'linear-gradient(135deg, var(--primary-yellow-dark), var(--accent-gold))',
+                            color: 'white',
+                            boxShadow: 'var(--shadow)'
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!submitLoading) {
+                              e.currentTarget.style.transform = 'translateY(-2px)';
+                              e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!submitLoading) {
+                              e.currentTarget.style.transform = 'translateY(0)';
+                              e.currentTarget.style.boxShadow = 'var(--shadow)';
+                            }
+                          }}
                         >
                           {submitLoading ? 'Signing In...' : 'Sign In'}
                         </button>
@@ -354,7 +416,8 @@ function HomeContent() {
                 // Registration Form
                 <div className="space-y-4">
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="email" className="block text-sm font-medium mb-2"
+                           style={{ color: 'var(--neutral-700)' }}>
                       Manager Email *
                     </label>
                     <input
@@ -364,13 +427,27 @@ function HomeContent() {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-500 transition-colors text-sm"
+                      className="w-full px-4 py-2 rounded-lg focus:outline-none transition-all duration-200 text-sm"
+                      style={{
+                        background: 'var(--input-bg)',
+                        border: '1px solid var(--neutral-300)',
+                        color: 'var(--neutral-900)'
+                      }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--primary-yellow)';
+                        e.currentTarget.style.boxShadow = '0 0 0 3px rgba(242, 200, 18, 0.1)';
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--neutral-300)';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
                       placeholder="Email address"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="username" className="block text-sm font-medium mb-2"
+                           style={{ color: 'var(--neutral-700)' }}>
                       Username *
                     </label>
                     <input
@@ -380,13 +457,27 @@ function HomeContent() {
                       value={formData.username}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-500 transition-colors text-sm"
+                      className="w-full px-4 py-2 rounded-lg focus:outline-none transition-all duration-200 text-sm"
+                      style={{
+                        background: 'var(--input-bg)',
+                        border: '1px solid var(--neutral-300)',
+                        color: 'var(--neutral-900)'
+                      }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--primary-yellow)';
+                        e.currentTarget.style.boxShadow = '0 0 0 3px rgba(242, 200, 18, 0.1)';
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--neutral-300)';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
                       placeholder="Username"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="password" className="block text-sm font-medium mb-2"
+                           style={{ color: 'var(--neutral-700)' }}>
                       Password *
                     </label>
                     <input
@@ -396,16 +487,30 @@ function HomeContent() {
                       value={formData.password}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-500 transition-colors text-sm"
+                      className="w-full px-4 py-2 rounded-lg focus:outline-none transition-all duration-200 text-sm"
+                      style={{
+                        background: 'var(--input-bg)',
+                        border: '1px solid var(--neutral-300)',
+                        color: 'var(--neutral-900)'
+                      }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--primary-yellow)';
+                        e.currentTarget.style.boxShadow = '0 0 0 3px rgba(242, 200, 18, 0.1)';
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--neutral-300)';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
                       placeholder="Password"
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs mt-1" style={{ color: 'var(--neutral-500)' }}>
                       Min 8 characters with uppercase, lowercase, and number
                     </p>
                   </div>
 
                   <div>
-                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="confirmPassword" className="block text-sm font-medium mb-2"
+                           style={{ color: 'var(--neutral-700)' }}>
                       Confirm Password *
                     </label>
                     <input
@@ -415,7 +520,20 @@ function HomeContent() {
                       value={formData.confirmPassword}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-500 transition-colors text-sm"
+                      className="w-full px-4 py-2 rounded-lg focus:outline-none transition-all duration-200 text-sm"
+                      style={{
+                        background: 'var(--input-bg)',
+                        border: '1px solid var(--neutral-300)',
+                        color: 'var(--neutral-900)'
+                      }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--primary-yellow)';
+                        e.currentTarget.style.boxShadow = '0 0 0 3px rgba(242, 200, 18, 0.1)';
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--neutral-300)';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
                       placeholder="Confirm password"
                     />
                   </div>
@@ -423,7 +541,24 @@ function HomeContent() {
                   <button
                     onClick={handleRegisterClick}
                     disabled={submitLoading}
-                    className="w-full bg-gray-900 text-white font-semibold py-2 px-6 rounded-lg hover:bg-black focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    className="w-full font-semibold py-2 px-6 rounded-lg focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                    style={{
+                      background: submitLoading ? 'var(--neutral-400)' : 'linear-gradient(135deg, var(--primary-yellow-dark), var(--accent-gold))',
+                      color: 'white',
+                      boxShadow: 'var(--shadow)'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!submitLoading) {
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                        e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!submitLoading) {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = 'var(--shadow)';
+                      }
+                    }}
                   >
                     {submitLoading ? 'Creating Account...' : 'Create Account'}
                   </button>
@@ -431,11 +566,18 @@ function HomeContent() {
               )}
 
               <div className="mt-1 ">
-                <p className="text-gray-600 text-sm">
+                <p className="text-sm" style={{ color: 'var(--neutral-600)' }}>
                   {isLogin ? "Don't have an account? " : "Already have an account? "}
                   <button 
                     onClick={() => setIsLogin(!isLogin)}
-                    className="text-gray-700 hover:text-black font-medium"
+                    className="font-medium transition-colors duration-200"
+                    style={{ color: 'var(--primary-yellow-dark)' }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = 'var(--accent-gold)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = 'var(--primary-yellow-dark)';
+                    }}
                   >
                     {isLogin ? 'Register' : 'Sign in here'}
                   </button>
@@ -452,7 +594,9 @@ function HomeContent() {
 export default function Home() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#b1bcd4' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ 
+        background: 'linear-gradient(135deg, #fff9e6 0%, #fffbf0 50%, #fff5db 100%)'
+      }}>
         <div className="text-center">
           <Spinner size={48} />
         </div>

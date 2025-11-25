@@ -37,22 +37,22 @@ export default function SheetTable({ sheets, loading, onSettings, onDelete, onVi
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full bg-white border border-gray-300 rounded-lg">
-        <thead className="bg-gray-100">
+      <table className="min-w-full bg-white border-1 border-[#d4a600] rounded-lg">
+        <thead className="bg-[#fff2aa]">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-300">
+            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b-1 border-[#d4a600]">
               #
             </th>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-300">
+            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b-1 border-[#d4a600]">
               Sheet Name
             </th>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-300">
+            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b-1 border-[#d4a600]">
               Shared Users
             </th>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-300">
+            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b-1 border-[#d4a600]">
               Created Date
             </th>
-            <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-300">
+            <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider border-b-1 border-[#d4a600]">
               Actions
             </th>
           </tr>
@@ -61,7 +61,7 @@ export default function SheetTable({ sheets, loading, onSettings, onDelete, onVi
           {sheets.map((sheet, index) => (
             <tr 
               key={sheet.id} 
-              className="hover:bg-gray-50 transition-colors cursor-pointer"
+              className="hover:bg-[#fffbf0] transition-colors cursor-pointer"
               onClick={() => onView(sheet.id, sheet.sheet_name)}
             >
               <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-600">

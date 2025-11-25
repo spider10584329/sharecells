@@ -64,8 +64,8 @@ export async function POST(request: NextRequest) {
     console.log('[API] Manager ID:', managerId);
 
     const body = await request.json();
-    const { sheet_id, cell_title, cell_content, sheet_type } = body;
-    console.log('[API] Request body:', { sheet_id, cell_title, cell_content, sheet_type });
+    const { sheet_id, cell_title, cell_content, sheet_type, data_format } = body;
+    console.log('[API] Request body:', { sheet_id, cell_title, cell_content, sheet_type, data_format });
 
     if (!sheet_id || !cell_title) {
       console.log('[API] Missing required fields');
@@ -96,6 +96,7 @@ export async function POST(request: NextRequest) {
         cell_title,
         cell_content: cell_content || '150', // Default column width
         sheet_type: sheet_type || 1,
+        data_format: data_format || 'text',
         created_at: new Date().toISOString()
       }
     });

@@ -144,6 +144,24 @@ export async function PATCH(
       }
     }
 
+    // Check if sheet_number already exists for another sheet
+    if (sheet_number !== undefined && sheet_number !== sheet.sheet_number) {
+      const existingSheetNumber = await prisma.sheets.findFirst({
+        where: {
+          sheet_number: sheet_number,
+          manager_id: decoded.userId,
+          id: { not: sheetId }
+        }
+      });
+
+      if (existingSheetNumber) {
+        return NextResponse.json(
+          { error: 'Sheet number already exists' },
+          { status: 400 }
+        );
+      }
+    }
+
     // Update the sheet
     const updatedSheet = await prisma.sheets.update({
       where: { id: sheetId },

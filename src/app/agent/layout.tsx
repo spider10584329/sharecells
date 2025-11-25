@@ -86,21 +86,21 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--background)' }}>
         <div className="text-center">
           <img 
             src="/svg/6-dots-spinner.svg" 
             alt="Loading..." 
             className="w-16 h-16 mx-auto"
           />
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <p className="mt-4" style={{ color: 'var(--neutral-600)' }}>Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex bg-gray-50 overflow-hidden">
+    <div className="min-h-screen flex overflow-hidden" style={{ background: 'var(--background)' }}>
       {/* Mobile Overlay */}
       {sidebarOpen && (
         <div 
@@ -111,17 +111,21 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
       
       {/* Left Sidebar */}
       <aside className={`
-        bg-white shadow-lg transition-all duration-300 flex-shrink-0 overflow-hidden
+        shadow-lg transition-all duration-300 flex-shrink-0 overflow-hidden
         md:relative inset-y-0 left-0 z-50
         ${sidebarOpen ? 'w-64 fixed' : 'w-16 relative'}
-      `}>
+      `} style={{ background: 'var(--sidebar-bg)' }}>
         <div className="h-full overflow-y-auto">
           {/* Logo Section */}
-          <div className="border-b border-gray-200 h-18 flex items-center justify-center bg-[#f2c812]">
+          <div className="h-18 flex items-center justify-center" style={{ 
+            background: 'var(--primary-yellow)',
+            borderBottom: '2px solid var(--primary-yellow-dark)'
+          }}>
             <img 
               src={sidebarOpen ? "/sharecells-logo.png" : "/sharecells-square.png"}
               alt="ShareCells Logo" 
-              className="w-auto transition-all duration-300 h-16 bg-[#f2c812]"
+              className="w-auto transition-all duration-300 h-16"
+              style={{ background: 'var(--primary-yellow)' }}
             />
           </div>
 
@@ -131,13 +135,30 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
             <button
               key={item.id}
               onClick={() => router.push(item.path)}
-              className={`w-full flex items-center mb-2 rounded-full transition-colors ${
+              className={`w-full flex items-center mb-2 rounded-full transition-all duration-200 ${
                 sidebarOpen ? 'px-4 py-1.5 justify-start' : 'px-2 py-3 justify-center'
-              } ${
-                pathname === item.path
-                  ? 'bg-gray-100 text-gray-900 border border-gray-400'
-                  : 'text-gray-600 border border-transparent hover:bg-gray-50 hover:border hover:border-gray-200'
               }`}
+              style={pathname === item.path ? {
+                background: 'linear-gradient(135deg, var(--primary-yellow-lighter), var(--primary-yellow-light))',
+                color: 'var(--neutral-900)',
+                border: '1px solid var(--primary-yellow)',
+                boxShadow: 'var(--shadow-sm)'
+              } : {
+                color: 'var(--neutral-700)',
+                border: '1px solid transparent'
+              }}
+              onMouseEnter={(e) => {
+                if (pathname !== item.path) {
+                  e.currentTarget.style.background = 'var(--primary-yellow-lighter)';
+                  e.currentTarget.style.border = '1px solid var(--primary-yellow-light)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (pathname !== item.path) {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.border = '1px solid transparent';
+                }
+              }}
               title={!sidebarOpen ? item.label : ''}
             >
               <img 
@@ -157,16 +178,26 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header */}
-        <header className="bg-white shadow-sm border-b border-gray-200 h-18 flex-shrink-0">
+        <header className="shadow-sm h-18 flex-shrink-0" style={{ 
+          background: 'var(--primary-yellow)',
+          borderBottom: '2px solid var(--primary-yellow-dark)'
+        }}>
           <div className="h-full px-6 flex justify-between items-center">
             <div className="flex items-center">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-lg transition-all duration-200"
+                style={{ color: 'var(--neutral-800)' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                }}
                 aria-label="Toggle Sidebar"
               >
                 <svg 
-                  className="w-6 h-6 text-gray-700" 
+                  className="w-6 h-6" 
                   fill="none" 
                   stroke="currentColor" 
                   viewBox="0 0 24 24"
@@ -184,17 +215,26 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
               <div className="relative">
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="flex items-center space-x-2 p-1 rounded-lg transition-all duration-200"
+                  style={{ color: 'var(--neutral-900)' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent';
+                  }}
                 >
                   <div className="w-9 h-9 rounded-fullflex items-center justify-center">
                     <img 
                         src='/svg/user-default.svg'
                         alt='user-icon'
-                        className="w-9 h-9 opacity-70"
+                        className="w-9 h-9 opacity-80"
                     />
                   </div>
-                  <span className="text-sm font-medium text-gray-800">{user?.username || 'Agent'}</span>
-                  <svg className={`w-4 h-4 text-gray-600 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span className="text-sm font-semibold" style={{ color: 'var(--neutral-900)' }}>{user?.username || 'Agent'}</span>
+                  <svg className={`w-4 h-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} 
+                       fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                       style={{ color: 'var(--neutral-800)' }}>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
@@ -202,18 +242,30 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
                 {dropdownOpen && (
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setDropdownOpen(false)} />
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20">
+                    <div className="absolute right-0 mt-2 w-48 rounded-lg shadow-lg py-2 z-20" 
+                         style={{ 
+                           background: 'var(--card-bg)',
+                           border: '1px solid var(--card-border)',
+                           boxShadow: 'var(--shadow-md)'
+                         }}>
                       <button
                         onClick={() => {
                           setDropdownOpen(false);
                           router.push('/agent/profile');
                         }}
-                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
+                        className="w-full px-4 py-2 text-left text-sm flex items-center space-x-2 transition-colors"
+                        style={{ color: 'var(--neutral-700)' }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'var(--neutral-100)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'transparent';
+                        }}
                       >
                         <img 
                             src='/svg/user-account.svg'
                             alt='user-icon'
-                            className="w-6 h-6 mr-3 opacity-70"
+                            className="w-6 h-6 mr-3 opacity-60"
                         />
                         <span>User Profile</span>
                       </button>
@@ -222,7 +274,14 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
                           setDropdownOpen(false);
                           handleLogout();
                         }}
-                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
+                        className="w-full px-4 py-2 text-left text-sm flex items-center space-x-2 transition-colors"
+                        style={{ color: 'var(--neutral-700)' }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'var(--neutral-100)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'transparent';
+                        }}
                       >
                         <img 
                             src='/svg/logout.svg'
@@ -240,7 +299,7 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
         </header>
 
         {/* Main Content - Children will be rendered here */}
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-6" style={{ background: 'var(--sidebar-bg)' }}>
           {children}
         </main>
       </div>
