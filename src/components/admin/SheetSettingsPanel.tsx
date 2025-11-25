@@ -418,7 +418,7 @@ export default function SheetSettingsPanel({ sheetId, sheetName, onClose, onShee
           {/* Left Panel */}
           <div className="flex flex-col">
             <h2 className='text-lg font-semibold mb-2'>Fields</h2>
-            <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
+            <div className="border-1 border-[#d4a600] rounded-lg overflow-hidden bg-white">
               {/* Table with fixed header and all rows visible - with horizontal scroll */}
               <div className="overflow-x-auto">
                 <div className="flex flex-col min-w-[800px]">
@@ -432,17 +432,17 @@ export default function SheetSettingsPanel({ sheetId, sheetName, onClose, onShee
                       <col className="w-1/4" />
                     </colgroup>
                     <thead>
-                      <tr className="bg-gray-100">
-                        <th className="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-300">
+                      <tr className="bg-[#ffe380]">
+                        <th className="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b-1 border-[#d4a600]">
                           Field Name
                         </th>
-                        <th className="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-300">
+                        <th className="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b-1 border-[#d4a600]">
                           Data Type
                         </th>
-                        <th className="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-300">
+                        <th className="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b-1 border-[#d4a600]">
                           Data Format
                         </th>
-                        <th className="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b border-gray-300">
+                        <th className="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-b-1 border-[#d4a600]">
                           Actions
                         </th>
                       </tr>
@@ -460,7 +460,7 @@ export default function SheetSettingsPanel({ sheetId, sheetName, onClose, onShee
                       <col className="w-1/4" />
                     </colgroup>
                     <tbody className="bg-white">
-                      <tr className="bg-blue-50">
+                      <tr className="bg-[#fff9ff]">
                         <td className="px-2 md:px-4 py-3">
                           <input
                             type="text"
@@ -533,7 +533,7 @@ export default function SheetSettingsPanel({ sheetId, sheetName, onClose, onShee
                         </tr>
                       ) : (
                         fields.map((field) => (
-                          <tr key={field.id} className="hover:bg-gray-50">
+                          <tr key={field.id} className="hover:bg-[#fffbf0] transition-colors">
                             {editingFieldId === field.id ? (
                               // Editing mode
                               <>
