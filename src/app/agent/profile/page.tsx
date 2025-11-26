@@ -159,9 +159,9 @@ export default function UserProfilePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <button
           onClick={() => router.back()}
           className="flex items-center text-gray-600 hover:text-gray-900 mb-4 transition-colors"
@@ -171,20 +171,20 @@ export default function UserProfilePage() {
           </svg>
           Back to Worksheets
         </button>
-        <h1 className="text-3xl font-bold text-gray-900">User Profile</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">User Profile</h1>
       </div>
 
       {/* Profile Card */}
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
         {/* Profile Form */}
-        <form onSubmit={handleSubmit} className="px-8 py-8">
+        <form onSubmit={handleSubmit} className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           {/* Account Information Section */}
-          <div className="mb-8">
-            <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">            
+          <div className="mb-6 sm:mb-8">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center">            
               Account Information
             </h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               {/* Username */}
               <div>
                 <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
@@ -197,7 +197,7 @@ export default function UserProfilePage() {
                   disabled
                   value={formData.username}
                   onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded-lg bg-gray-50  transition-shadow ${
+                  className={`w-full px-3 sm:px-4 py-1.5 sm:py-1.5 border rounded-lg bg-gray-50 transition-shadow text-sm sm:text-base ${
                     errors.username ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="Enter username"
@@ -216,21 +216,21 @@ export default function UserProfilePage() {
                   type="text"
                   value={profile?.id || ''}
                   disabled
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+                  className="w-full px-3 sm:px-4 py-1.5 sm:py-1.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 text-sm sm:text-base"
                 />
               </div>
 
               {/* Manager Name (Read-only) */}
               {profile?.manager_name && (
-                <div className="md:col-span-2">
+                <div className="lg:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Assigned Manager
                   </label>
-                  <div className="flex items-center px-4 py-3 border border-gray-300 rounded-lg bg-gray-50">
-                    <svg className="w-5 h-5 text-gray-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="flex items-center px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg bg-gray-50">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                     </svg>
-                    <span className="text-gray-700">{profile.manager_name}</span>
+                    <span className="text-gray-700 text-sm sm:text-base">{profile.manager_name}</span>
                   </div>
                 </div>
               )}
@@ -238,14 +238,14 @@ export default function UserProfilePage() {
           </div>
 
           {/* Security Section */}
-          <div className="mb-8 pt-8 border-t border-gray-200">
-            <h3 className="text-xl font-semibold text-gray-900 flex items-center mb-6">               
+          <div className="mb-6 sm:mb-8 pt-6 sm:pt-8 border-t border-gray-200">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center mb-4 sm:mb-6">               
               Security Settings
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 rounded-lg">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 p-2 sm:p-2 rounded-lg">
                 {/* Current Password */}
-                <div className="md:col-span-2">
+                <div className="lg:col-span-2">
                   <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-2">
                     Current Password <span className="text-red-500">*</span>
                   </label>
@@ -255,7 +255,7 @@ export default function UserProfilePage() {
                     name="currentPassword"
                     value={formData.currentPassword}
                     onChange={handleChange}
-                    className={`w-full px-4 py-2 border rounded-lg  focus:outline-none focus:border-gray-500 transition-shadow ${
+                    className={`w-full px-3 sm:px-4 py-1.5 sm:py-1.5 border rounded-lg focus:outline-none focus:border-gray-500 transition-shadow text-sm sm:text-base ${
                       errors.currentPassword ? 'border-red-500' : 'border-gray-300'
                     }`}
                     placeholder="Enter current password"
@@ -276,7 +276,7 @@ export default function UserProfilePage() {
                     name="newPassword"
                     value={formData.newPassword}
                     onChange={handleChange}
-                    className={`w-full px-4 py-2 border rounded-lg  focus:outline-none focus:border-gray-500 transition-shadow ${
+                    className={`w-full px-3 sm:px-4 py-2 sm:py-1.5 border rounded-lg focus:outline-none focus:border-gray-500 transition-shadow text-sm sm:text-base ${
                       errors.newPassword ? 'border-red-500' : 'border-gray-300'
                     }`}
                     placeholder="Enter new password"
@@ -298,7 +298,7 @@ export default function UserProfilePage() {
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className={`w-full px-4 py-2 border rounded-lg  focus:outline-none focus:border-gray-500 ${
+                    className={`w-full px-3 sm:px-4 py-1.5 sm:py-1.5 border rounded-lg focus:outline-none focus:border-gray-500 text-sm sm:text-base ${
                       errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
                     }`}
                     placeholder="Confirm new password"
@@ -311,22 +311,22 @@ export default function UserProfilePage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-gray-200">
             <button
               type="button"
               onClick={() => router.back()}
-              className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium"
+              className="px-4 sm:px-6 py-1.5 sm:py-1.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium text-sm sm:text-base order-2 sm:order-1"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+              className="px-4 sm:px-6 py-1.5 sm:py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm sm:text-base order-1 sm:order-2"
             >
               {saving ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 sm:h-5 sm:w-5 text-white" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
@@ -334,10 +334,10 @@ export default function UserProfilePage() {
                 </>
               ) : (
                 <>
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Save Changes
+                  Save
                 </>
               )}
             </button>

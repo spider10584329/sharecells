@@ -105,7 +105,7 @@ export default function AdminPage() {
       />
       
       {/* Main Content Area */}
-      <div className="bg-white rounded-lg shadow p-6 h-[calc(100vh-190px)]">
+      <div className="bg-white rounded-lg shadow px-4 sm:px-6 py-4 sm:py-6 h-[calc(100vh-150px)] sm:h-[calc(100vh-190px)]">
         {viewingSheetId !== null ? (
           <SheetViewer
             sheetId={viewingSheetId}

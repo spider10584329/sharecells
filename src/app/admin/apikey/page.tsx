@@ -183,31 +183,31 @@ export default function APIKeyPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">API Key</h1>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">API Key</h1>
 
       {loading ? (
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
           {/* Left Card - Generate API Key */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Generate API Key</h2>
-            <p className="text-sm text-gray-600 mb-6">Create a new API key for accessing the inventory system.</p>
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Generate API Key</h2>
+            <p className="text-sm text-gray-600 mb-4 sm:mb-6">Create a new API key for accessing the inventory system.</p>
 
             {/* Customer ID */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Customer ID
               </label>
-              <div className="flex gap-2">
+            <div className="flex flex-col gap-2">
                 <input
                   type="text"
                   value={customerId}
                   readOnly
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-sm"
+                  className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-sm"
                 />
               </div>
             </div>
@@ -223,23 +223,23 @@ export default function APIKeyPage() {
                   value={apiKey}
                   readOnly
                   placeholder={apiKey ? '' : 'No API key generated yet'}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-sm"
+                  className="flex-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-sm min-w-0"
                 />
                 <button
                   onClick={() => copyToClipboard(apiKey, 'API Key')}
                   disabled={!apiKey}
-                  className="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-2 sm:px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
-                  Copy
+                  <span className="hidden sm:inline">Copy</span>
                 </button>
               </div>
             </div>
 
           {/* Complete API URL */}
-          <div className="mb-6">
+          <div className="mb-4 sm:mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Complete API URL
             </label>
@@ -248,16 +248,16 @@ export default function APIKeyPage() {
                 type="text"
                 value={apiUrl}
                 readOnly
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-sm"
+                className="flex-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-sm min-w-0"
               />
               <button
                 onClick={() => copyToClipboard(apiUrl, 'API URL')}
-                className="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors flex items-center gap-2"
+                className="px-2 sm:px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors flex items-center gap-2 flex-shrink-0"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
-                Copy
+                <span className="hidden sm:inline">Copy</span>
               </button>
             </div>
           </div>
@@ -266,9 +266,9 @@ export default function APIKeyPage() {
           <button
             onClick={generateKey}
             disabled={generating}
-            className="w-full px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-4 sm:px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
             </svg>
             {generating ? 'Generating...' : 'Generate Key'}
@@ -276,21 +276,21 @@ export default function APIKeyPage() {
         </div>
 
         {/* Right Card - Export to External File */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Export to external file</h2>
-          <p className="text-sm text-gray-600 mb-6">Download inventory data in various formats for external use.</p>
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Export to external file</h2>
+          <p className="text-sm text-gray-600 mb-4 sm:mb-6">Download inventory data in various formats for external use.</p>
 
           {/* Export to CSV Section */}
-          <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Export to CSV file</h3>
-            <p className="text-sm text-gray-700 mb-4">
+          <div className="bg-teal-50 border border-teal-200 rounded-lg p-3 sm:p-4 mb-4">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">Export to CSV file</h3>
+            <p className="text-sm text-gray-700 mb-3 sm:mb-4">
               CSV files are plaintext data files separated by commas, so they can be opened directly as Excel sheets and are a very useful file format for exporting and importing data from other programs.
             </p>
             <button
               onClick={handleDownloadCSV}
-              className="w-full px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors flex items-center justify-center gap-2"
+              className="w-full px-4 sm:px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
               Download CSV
@@ -298,13 +298,13 @@ export default function APIKeyPage() {
           </div>
 
           {/* CSV Structure Info */}
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 sm:p-4">
             <h4 className="text-sm font-semibold text-gray-900 mb-2">CSV Structure</h4>
             <p className="text-xs text-gray-700 mb-2">
               The CSV file will contain data with the following format:
             </p>
-            <div className="bg-yellow-100 rounded p-2">
-              <code className="text-xs text-gray-800 break-all">
+            <div className="bg-yellow-100 rounded p-2 overflow-x-auto">
+              <code className="text-xs text-gray-800 whitespace-nowrap block">
                 sheet_id,sheet_name,time,user,field1,field2,...<br/>
                 1,Sheet Name,2025-01-15 10:30:00,username,value1,value2,...
               </code>
