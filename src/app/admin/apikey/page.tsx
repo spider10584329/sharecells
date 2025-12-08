@@ -10,7 +10,7 @@ export default function APIKeyPage() {
   const [loading, setLoading] = useState(true);
   
   // Get domain from environment variable or default to localhost:3000
-  const domain = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const domain = window.location.origin
   const apiUrl = customerId && apiKey 
     ? `${domain}/api/sharecells?customer_id=${customerId}&apikey=${apiKey}`
     : `${domain}/api/sharecells?customer_id=<ID>&apikey=<KEY>`;
