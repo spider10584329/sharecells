@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const customerId = searchParams.get('customer_id');
     const apiKey = searchParams.get('apikey');
+    const sheetId = searchParams.get('sheet_id'); // Optional parameter
 
     // Validate required parameters
     if (!customerId || !apiKey) {
@@ -31,6 +32,21 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Convert sheet_id to number if provided
+    let sheetIdNum: number | null = null;
+    if (sheetId) {
+      sheetIdNum = parseInt(sheetId);
+      if (isNaN(sheetIdNum)) {
+        return NextResponse.json(
+          { 
+            error: 'Invalid sheet_id',
+            message: 'sheet_id must be a valid number'
+          }, 
+          { status: 400 }
+        );
+      }
+    }
+
     // Verify API key
     const apiKeyRecord = await prisma.$queryRaw<Array<{ id: number; customer_id: number; api_key: string }>>`
       SELECT * FROM apikey 
@@ -49,18 +65,50 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Fetch all sheets for this customer (admin)
-    const sheets = await prisma.$queryRaw<Array<{
-      id: number;
-      sheet_name: string;
-      sheet_number: number;
-      created_at: string;
-    }>>`
-      SELECT id, sheet_name, sheet_number, created_at
-      FROM sheets 
-      WHERE manager_id = ${customerIdNum}
-      ORDER BY created_at DESC
-    `;
+    // Fetch sheets for this customer (admin)
+    // If sheet_id is provided, fetch only that specific sheet
+    // Otherwise, fetch all sheets
+    let sheets;
+    
+    if (sheetIdNum !== null) {
+      // Fetch specific sheet and verify it belongs to this customer
+      sheets = await prisma.$queryRaw<Array<{
+        id: number;
+        sheet_name: string;
+        sheet_number: number;
+        created_at: string;
+      }>>`
+        SELECT id, sheet_name, sheet_number, created_at
+        FROM sheets 
+        WHERE manager_id = ${customerIdNum}
+        AND id = ${sheetIdNum}
+        LIMIT 1
+      `;
+      
+      // If sheet not found or doesn't belong to this customer
+      if (sheets.length === 0) {
+        return NextResponse.json(
+          { 
+            error: 'Sheet not found',
+            message: 'The specified sheet_id does not exist or does not belong to this customer'
+          }, 
+          { status: 404 }
+        );
+      }
+    } else {
+      // Fetch all sheets for this customer
+      sheets = await prisma.$queryRaw<Array<{
+        id: number;
+        sheet_name: string;
+        sheet_number: number;
+        created_at: string;
+      }>>`
+        SELECT id, sheet_name, sheet_number, created_at
+        FROM sheets 
+        WHERE manager_id = ${customerIdNum}
+        ORDER BY created_at DESC
+      `;
+    }
 
     // If no sheets found, return empty data
     if (sheets.length === 0) {

@@ -8,19 +8,61 @@ export default function APIKeyPage() {
   const [apiKey, setApiKey] = useState('');
   const [customerId, setCustomerId] = useState('');
   const [loading, setLoading] = useState(true);
-  
-  // Get domain from environment variable or default to localhost:3000
-  const domain = window.location.origin;
-  const apiUrl = customerId && apiKey 
-    ? `${domain}/api/sharecells?customer_id=${customerId}&apikey=${apiKey}`
-    : `${domain}/api/sharecells?customer_id=<ID>&apikey=<KEY>`;
-  
+  const [domain, setDomain] = useState('');
   const [generating, setGenerating] = useState(false);
+  const [sheets, setSheets] = useState<Array<{ id: number; sheet_name: string }>>([]);
+  const [selectedSheetId, setSelectedSheetId] = useState<string>('all');
+  const [showSheetDropdown, setShowSheetDropdown] = useState(false);
+  const [sheetSearchTerm, setSheetSearchTerm] = useState('');
+  
+  // Get domain from window.location.origin after component mounts
+  useEffect(() => {
+    setDomain(window.location.origin);
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (showSheetDropdown && !target.closest('.sheet-dropdown')) {
+        setShowSheetDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showSheetDropdown]);
+  
+  const apiUrl = customerId && apiKey && domain
+    ? selectedSheetId === 'all'
+      ? `${domain}/api/sharecells?customer_id=${customerId}&apikey=${apiKey}`
+      : `${domain}/api/sharecells?customer_id=${customerId}&apikey=${apiKey}&sheet_id=${selectedSheetId}`
+    : domain 
+      ? selectedSheetId === 'all'
+        ? `${domain}/api/sharecells?customer_id=<ID>&apikey=<KEY>`
+        : `${domain}/api/sharecells?customer_id=<ID>&apikey=<KEY>&sheet_id=<SHEET_ID>`
+      : 'Loading...';
 
   // Fetch API key and customer ID on component mount
   useEffect(() => {
     fetchApiKey();
+    fetchSheets();
   }, []);
+
+  const fetchSheets = async () => {
+    try {
+      const response = await fetch('/api/admin/sheets');
+      const data = await response.json();
+      
+      if (response.ok) {
+        setSheets(data.sheets || []);
+      } else {
+        console.error('Failed to fetch sheets:', data.error);
+      }
+    } catch (error) {
+      console.error('Error fetching sheets:', error);
+    }
+  };
 
   const fetchApiKey = async () => {
     try {
@@ -77,8 +119,12 @@ export default function APIKeyPage() {
     }
 
     try {
-      // Fetch data from the API
-      const response = await fetch(`/api/sharecells?customer_id=${customerId}&apikey=${apiKey}`);
+      // Fetch data from the API with optional sheet_id parameter
+      const apiEndpoint = selectedSheetId === 'all'
+        ? `/api/sharecells?customer_id=${customerId}&apikey=${apiKey}`
+        : `/api/sharecells?customer_id=${customerId}&apikey=${apiKey}&sheet_id=${selectedSheetId}`;
+      
+      const response = await fetch(apiEndpoint);
       
       if (!response.ok) {
         throw new Error('Failed to fetch data');
@@ -238,6 +284,129 @@ export default function APIKeyPage() {
               </div>
             </div>
 
+            {/* Sheet Selection */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Select Sheet
+              </label>
+              <div className="relative sheet-dropdown">
+                <button
+                  onClick={() => setShowSheetDropdown(!showSheetDropdown)}
+                  className="w-full px-4 py-2.5 border border-gray-300 bg-white text-gray-600 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors flex items-center justify-between"
+                >
+                  <span>
+                    {selectedSheetId === 'all' 
+                      ? 'All Sheets' 
+                      : sheets.find(s => s.id.toString() === selectedSheetId)?.sheet_name || 'Select Sheet'}
+                  </span>
+                  <svg 
+                    className={`w-4 h-4 transition-transform ${showSheetDropdown ? 'rotate-180' : ''}`} 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* Dropdown Menu */}
+                {showSheetDropdown && (
+                  <div className="absolute z-10 w-full mt-2 bg-white border border-gray-300 rounded-md shadow-lg">
+                    {/* Search Input */}
+                    <div className="p-2 border-b border-gray-200">
+                      <div className="relative">
+                        <svg 
+                          className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <input
+                          type="text"
+                          placeholder="Search sheets..."
+                          value={sheetSearchTerm}
+                          onChange={(e) => setSheetSearchTerm(e.target.value)}
+                          className="w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Clear Selection */}
+                    <button
+                      onClick={() => {
+                        setSelectedSheetId('all');
+                        setSheetSearchTerm('');
+                        setShowSheetDropdown(false);
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm text-gray-500 hover:bg-gray-50 border-b border-gray-200 flex items-center justify-between"
+                    >
+                      <span>Clear Selection</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+
+                    {/* Sheet List */}
+                    <div className="max-h-60 overflow-y-auto">
+                      {/* All Sheets Option */}
+                      <button
+                        onClick={() => {
+                          setSelectedSheetId('all');
+                          setSheetSearchTerm('');
+                          setShowSheetDropdown(false);
+                        }}
+                        className={`w-full px-4 py-2 text-left text-sm transition-colors ${
+                          selectedSheetId === 'all' 
+                            ? 'bg-blue-50 text-blue-700 font-medium' 
+                            : 'text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        All Sheets
+                      </button>
+                      
+                      {/* Individual Sheets */}
+                      {sheets
+                        .filter(sheet => 
+                          sheet.sheet_name.toLowerCase().includes(sheetSearchTerm.toLowerCase())
+                        )
+                        .map((sheet) => (
+                          <button
+                            key={sheet.id}
+                            onClick={() => {
+                              setSelectedSheetId(sheet.id.toString());
+                              setSheetSearchTerm('');
+                              setShowSheetDropdown(false);
+                            }}
+                            className={`w-full px-4 py-2 text-left text-sm transition-colors ${
+                              selectedSheetId === sheet.id.toString() 
+                                ? 'bg-blue-50 text-blue-700 font-medium' 
+                                : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            {sheet.sheet_name}
+                          </button>
+                        ))
+                      }
+                      {sheets.filter(sheet => 
+                        sheet.sheet_name.toLowerCase().includes(sheetSearchTerm.toLowerCase())
+                      ).length === 0 && sheetSearchTerm && (
+                        <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                          No sheets found
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                {selectedSheetId === 'all' 
+                  ? 'API will return data from all sheets' 
+                  : `API will return data only from the selected sheet`}
+              </p>
+            </div>
+
           {/* Complete API URL */}
           <div className="mb-4 sm:mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -299,15 +468,26 @@ export default function APIKeyPage() {
 
           {/* CSV Structure Info */}
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 sm:p-4">
-            <h4 className="text-sm font-semibold text-gray-900 mb-2">CSV Structure</h4>
+            <h4 className="text-sm font-semibold text-gray-900 mb-2">CSV Structure & API Usage</h4>
             <p className="text-xs text-gray-700 mb-2">
               The CSV file will contain data with the following format:
             </p>
-            <div className="bg-yellow-100 rounded p-2 overflow-x-auto">
+            <div className="bg-yellow-100 rounded p-2 overflow-x-auto mb-3">
               <code className="text-xs text-gray-800 whitespace-nowrap block">
                 sheet_id,sheet_name,time,user,field1,field2,...<br/>
                 1,Sheet Name,2025-01-15 10:30:00,username,value1,value2,...
               </code>
+            </div>
+            <div className="border-t border-yellow-300 pt-2 mt-2">
+              <p className="text-xs font-semibold text-gray-900 mb-1">API Parameters:</p>
+              <ul className="text-xs text-gray-700 space-y-1">
+                <li>• <code className="bg-yellow-200 px-1 rounded">customer_id</code> - Your customer ID (required)</li>
+                <li>• <code className="bg-yellow-200 px-1 rounded">apikey</code> - Your API key (required)</li>
+                <li>• <code className="bg-yellow-200 px-1 rounded">sheet_id</code> - Specific sheet ID (optional)</li>
+              </ul>
+              <p className="text-xs text-gray-600 mt-2 italic">
+                Omit sheet_id to retrieve all sheets, or include it to get a specific sheet.
+              </p>
             </div>
           </div>
         </div>
